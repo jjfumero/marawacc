@@ -58,8 +58,6 @@ public class TestForGPU extends MarawaccOpenCLTestBase {
         }
 
         output = function.apply(input);
-
         assertNotNull(output);
-
     }
 }

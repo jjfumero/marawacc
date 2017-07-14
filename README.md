@@ -94,4 +94,4 @@ Marawacc project is a part of my PhD at the University of Edinburgh. My PhD has 
 #### Supervisors
 
 * Christophe Dubach <christophe.dubach @ ed.ac.uk> 
-* Steuwer <michel.steuwer @ ed.ac.uk >
+* Michel Steuwer <michel.steuwer @ ed.ac.uk >
