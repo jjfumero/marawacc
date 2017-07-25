@@ -94,6 +94,10 @@ public class GraalIRConversion implements GraalIRUtilities {
         StructuredGraph graph = new StructuredGraph(lambdaMethod, AllowAssumptions.NO);
         GraalOCLBackendConnector.apply(graph);
 
+        if (GraalAcceleratorOptions.dumpGraalIR) {
+            GraalIRUtilities.dumpGraph(graph, "Non-Optimal");
+        }
+
         StructuredGraph optimalGraph = (StructuredGraph) graph.copy();
 
         graph = optimisticOptimisationsLambda(graph, true);

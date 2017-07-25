@@ -413,10 +413,6 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
         StructuredGraph graphLambda = GraalIRConversion.getOptimizedGraalIRLambda(function.getClass());
 
-        if (GraalAcceleratorOptions.dumpGraalIR) {
-            GraalIRUtilities.dumpGraph(graphLambda, "Non-Optimal");
-        }
-
         if (GraalAcceleratorOptions.printGraalIR) {
             GraalIRUtilities.printGraph(graphLambda, false);
         }
