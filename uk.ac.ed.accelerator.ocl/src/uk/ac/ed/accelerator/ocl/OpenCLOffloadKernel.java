@@ -80,7 +80,7 @@ public final class OpenCLOffloadKernel {
             StringBuffer openCLCode = new StringBuffer();
             SymbolTable table = new SymbolTable(symbolPhases.getArrayAccessDim(), symbolPhases.getArrayDimensions());
 
-            GraalOpenCLGenerator codeSkeleton = new GraalOpenCLGenerator(ParallelOptions.EnableComments.getValue(), table);
+            GraalOpenCLGenerator codeSkeleton = new GraalOpenCLGenerator(GraalAcceleratorOptions.debugOCLKernel, table);
             codeSkeleton.setTruffleFrontEnd(kernelPackage.isTruffleCode());
             codeSkeleton.setParametersDirection(parametersDirection);
             codeSkeleton.setLambdaGraph(graphLambda);
@@ -103,7 +103,7 @@ public final class OpenCLOffloadKernel {
 
             // Preparation
             table = new SymbolTable(symbolPhasesFunction.getArrayAccessDim(), symbolPhasesFunction.getArrayDimensions());
-            GraalOpenCLGenerator codeLambda = new GraalOpenCLGenerator(ParallelOptions.EnableComments.getValue(), table, uuidKernel);
+            GraalOpenCLGenerator codeLambda = new GraalOpenCLGenerator(GraalAcceleratorOptions.debugOCLKernel, table, uuidKernel);
             codeLambda.setParametersDirection(parametersDirection);
             codeLambda.setLambdaGraph(graphLambda);
             codeLambda.setSimpleDataTypeLambdaParameter(simpleLambdaParameter);

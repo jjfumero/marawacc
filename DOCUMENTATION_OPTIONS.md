@@ -68,6 +68,13 @@ GPU: The platform could be NVIDIA or AMD
 
 ```
 
+#### Include Debug information of what it being generated from the Graal IR
+
+```bash
+  -Dmarawacc.debugOCLKernel=true  // false by default
+``` 
+
+
 
 ## VM Options for optimizations 
 

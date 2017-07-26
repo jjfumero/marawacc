@@ -134,6 +134,12 @@ public final class GraalAcceleratorOptions {
     public static boolean useVectorTypes = getBoolean("marawacc.useVectorTypes", false);
 
     /**
+     * Debug the OpenCL kernel. It prints the IR nodes and its values as well as the corresponding
+     * OpenCL code in the same output source code.
+     */
+    public static boolean debugOCLKernel = getBoolean("marawacc.debugOCLKernel", false);
+
+    /**
      * Platforms supported
      */
     public enum AcceleratorPlatformKind {

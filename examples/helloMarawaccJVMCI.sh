@@ -14,6 +14,7 @@ mx $vm \
 	-Dmarawacc.printOCLKernel=true \
 	-Dmarawacc.multidevice=true \
 	-Dmarawacc.useVectorTypes=true \
+	-Dmarawacc.debugOCLKernel=false \
 	-XX:-BootstrapJVMCI \
 	-XX:-UseJVMCIClassLoader \
 	-Dmarawacc.printOCLInfo=true \

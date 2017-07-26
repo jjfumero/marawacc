@@ -2109,7 +2109,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
                     /*
                      * If coming from Ruby with this constant => is a comparison with -1 but from
                      * binary representation.
-                     * 
+                     *
                      * In Ruby: [4607182418800017408].pack('Q').unpack('D') => [1.0]
                      */
                     double s = Double.longBitsToDouble(Long.parseLong(xVar));
@@ -2618,7 +2618,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
         symbolPhases.applyPhases(nestedLambdaGraph);
         SymbolTable lambdaTable = new SymbolTable(symbolPhases.getArrayAccessDim(), symbolPhases.getArrayDimensions());
 
-        GraalOpenCLGenerator cgen = new GraalOpenCLGenerator(ParallelOptions.EnableComments.getValue(), lambdaTable);
+        GraalOpenCLGenerator cgen = new GraalOpenCLGenerator(GraalAcceleratorOptions.debugOCLKernel, lambdaTable);
         cgen.setLambdaGraph(nestedLambdaGraph);
 
         LambdaFunctionMetadata lambdaMeta = nestedLambdaInfo.meta;
