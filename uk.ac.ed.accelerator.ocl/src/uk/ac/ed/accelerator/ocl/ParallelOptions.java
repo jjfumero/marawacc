@@ -24,8 +24,6 @@ import jdk.vm.ci.options.Option;
 import jdk.vm.ci.options.OptionValue;
 
 public class ParallelOptions {
-    @Option(help = "Verbose of internal timers and code generation") public static final OptionValue<Boolean> Verbose = new OptionValue<>(false);
-    @Option(help = "Generate Kernel from Lambda expression using new interface (JDK8 required)") public static final OptionValue<Boolean> UseFunctionalJPAIGPU = new OptionValue<>(true);
     @Option(help = "Explicit code generation for Structure of Arrays (SoA)") public static final OptionValue<Integer> UseSoAWithValue = new OptionValue<>(0);
     @Option(help = "Using Pipelining marshalling") public static final OptionValue<Boolean> UseSimplePipeline = new OptionValue<>(false);
 }

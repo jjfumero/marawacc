@@ -486,9 +486,9 @@ public class DataTypeRuntimePreparation {
 
     public static Pointer getPointer(Object obj) throws Exception {
         Method m;
-        final String METHOD_TO_LOOK_UP = "to";
+        final String METHOD_NAME_TO_LOOK_UP = "to";
         try {
-            m = Pointer.class.getMethod(METHOD_TO_LOOK_UP, new Class[]{obj.getClass()});
+            m = Pointer.class.getMethod(METHOD_NAME_TO_LOOK_UP, new Class[]{obj.getClass()});
             return (Pointer) m.invoke(null, obj);
         } catch (Exception e) {
             e.printStackTrace();

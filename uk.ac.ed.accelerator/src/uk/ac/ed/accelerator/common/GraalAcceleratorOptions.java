@@ -140,6 +140,11 @@ public final class GraalAcceleratorOptions {
     public static boolean debugOCLKernel = getBoolean("marawacc.debugOCLKernel", false);
 
     /**
+     * Old option to print the template code generation.
+     */
+    public static boolean templateVerbose = false;
+
+    /**
      * Platforms supported
      */
     public enum AcceleratorPlatformKind {

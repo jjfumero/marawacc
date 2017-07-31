@@ -36,6 +36,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
+import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
 import uk.ac.ed.accelerator.ocl.ParallelOptions;
 import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType;
 import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType.DataType;
@@ -147,7 +148,7 @@ public final class GenerateDynamicTuples {
         String newCode = sourceCode.replace("<int>", (new Integer(n).toString()));
         newCode = newCode.replace("<access_template>", dataSource);
 
-        if (ParallelOptions.Verbose.getValue()) {
+        if (GraalAcceleratorOptions.templateVerbose) {
             System.out.println(sourceCode);
         }
         return newCode;

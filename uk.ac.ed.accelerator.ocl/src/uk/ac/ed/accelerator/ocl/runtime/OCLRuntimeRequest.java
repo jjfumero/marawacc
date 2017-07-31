@@ -130,7 +130,6 @@ public class OCLRuntimeRequest {
 
         // lastParam = replacements.getLastParameterNode();
         GraalAcceleratorOptions.workSize = jobSize;
-        ParallelOptions.UseFunctionalJPAIGPU.setValue(true);
         ParallelOptions.UseSoAWithValue.setValue(convertionSoA);
 
     }

@@ -375,7 +375,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
     public void addInitCode(StructuredGraph sg) {
         // add 1D dimension access variables.
         for (ParameterNode paramNode : sg.getNodes(ParameterNode.TYPE)) {
-            if (ParallelOptions.UseFunctionalJPAIGPU.getValue() && (paramNode == this.lastParam)) {
+            if (paramNode == this.lastParam) {
                 String name = symbolTable.lookupName(paramNode);
                 String localVariable = symbolTable.newVariable(SymbolTable.PARAM_VALUE);
                 symbolTable.add(localVariable, paramNode, paramNode.getStackKind());
@@ -2109,7 +2109,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
                     /*
                      * If coming from Ruby with this constant => is a comparison with -1 but from
                      * binary representation.
-                     *
+                     * 
                      * In Ruby: [4607182418800017408].pack('Q').unpack('D') => [1.0]
                      */
                     double s = Double.longBitsToDouble(Long.parseLong(xVar));
