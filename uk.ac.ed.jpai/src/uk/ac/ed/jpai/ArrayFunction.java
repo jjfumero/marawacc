@@ -55,14 +55,27 @@ public abstract class ArrayFunction<inT, outT> implements Function<PArray<inT>, 
      */
     public abstract PArray<outT> apply(PArray<inT> input);
 
+    /**
+     * Method for compiling and obtaining types before executing the user code.
+     */
     public abstract PArray<outT> prepareExecution(PArray<inT> input);
 
+    /**
+     * Infer the output type.
+     */
     public abstract PArray<outT> inferTypes(PArray<inT> input);
 
+    /**
+     * It allocates an instance of PArray.
+     */
     public PArray<outT> allocateOutputArray(int size, StorageMode mode) {
         return new PArray<>(size, outputType, mode, true);
     }
 
+    /**
+     * It allocates an instance of the PArray given the size, mode and the interop. This method is
+     * prepared for Truffle framework conection.
+     */
     public PArray<outT> allocateOutputArray(int size, StorageMode mode, InteropTable interop) {
         return new PArray<>(size, outputType, mode, interop);
     }
