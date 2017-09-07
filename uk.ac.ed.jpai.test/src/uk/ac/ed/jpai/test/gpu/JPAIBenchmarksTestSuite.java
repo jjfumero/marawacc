@@ -127,69 +127,69 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
             float d2 = d1 - (v * OCLMath.sqrt(t));
 
             // cnd(d1)
-                        float l;
-                        float k;
-                        float w;
-                        float a1 = 0.319381530f;
-                        float a2 = -0.356563782f;
-                        float a3 = 1.781477937f;
-                        float a4 = -1.821255978f;
-                        float a5 = 1.330274429f;
-                        float a6 = 2.506628273f;
-                        l = OCLMath.fabs(d1);
-                        k = 1.0f / (1.0f + 0.2316419f * l);
-                        w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
-                        float resultD1;
-                        if (d1 < 0) {
-                            resultD1 = 1.0f - w;
-                        } else {
-                            resultD1 = w;
-                        }
+            float l;
+            float k;
+            float w;
+            float a1 = 0.319381530f;
+            float a2 = -0.356563782f;
+            float a3 = 1.781477937f;
+            float a4 = -1.821255978f;
+            float a5 = 1.330274429f;
+            float a6 = 2.506628273f;
+            l = OCLMath.fabs(d1);
+            k = 1.0f / (1.0f + 0.2316419f * l);
+            w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
+            float resultD1;
+            if (d1 < 0) {
+                resultD1 = 1.0f - w;
+            } else {
+                resultD1 = w;
+            }
 
-                        // cnd(d2)
-                        l = OCLMath.fabs(d2);
-                        k = 1.0f / (1.0f + 0.2316419f * l);
-                        w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
-                        float resultD2;
-                        if (d2 < 0) {
-                            resultD2 = 1.0f - w;
-                        } else {
-                            resultD2 = w;
-                        }
+            // cnd(d2)
+            l = OCLMath.fabs(d2);
+            k = 1.0f / (1.0f + 0.2316419f * l);
+            w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
+            float resultD2;
+            if (d2 < 0) {
+                resultD2 = 1.0f - w;
+            } else {
+                resultD2 = w;
+            }
 
-                        float callRes = s * resultD1 - KConstant * OCLMath.exp(1 * t * (-1) * r) * resultD2;
+            float callRes = s * resultD1 - KConstant * OCLMath.exp(1 * t * (-1) * r) * resultD2;
 
-                        // cnd(-1)
-                        l = OCLMath.fabs(-d1);
-                        k = 1.0f / (1.0f + 0.2316419f * l);
-                        w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
-                        float resultD1Minus;
-                        if ((-d1) < 0) {
-                            resultD1Minus = 1.0f - w;
-                        } else {
-                            resultD1Minus = w;
-                        }
+            // cnd(-1)
+            l = OCLMath.fabs(-d1);
+            k = 1.0f / (1.0f + 0.2316419f * l);
+            w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
+            float resultD1Minus;
+            if ((-d1) < 0) {
+                resultD1Minus = 1.0f - w;
+            } else {
+                resultD1Minus = w;
+            }
 
-                        // cnd(-2)
-                        l = OCLMath.fabs(-d2);
-                        k = 1.0f / (1.0f + 0.2316419f * l);
-                        w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
-                        float resultD2Minus;
-                        if ((-d2) < 0) {
-                            resultD2Minus = 1.0f - w;
-                        } else {
-                            resultD2Minus = w;
-                        }
+            // cnd(-2)
+            l = OCLMath.fabs(-d2);
+            k = 1.0f / (1.0f + 0.2316419f * l);
+            w = 1.0f - 1.0f / 1 * a6 * OCLMath.exp((-1 * l) * l / 2) * (a1 * k + a2 * k * k * 1 + a3 * k * k * k * +a4 * k * k * k * k * 1 + a5 * k * k * k * k * k);
+            float resultD2Minus;
+            if ((-d2) < 0) {
+                resultD2Minus = 1.0f - w;
+            } else {
+                resultD2Minus = w;
+            }
 
-                        float putRes = KConstant * OCLMath.exp(1 * t * (-1) * r) - resultD2Minus - s * resultD1Minus;
+            float putRes = KConstant * OCLMath.exp(1 * t * (-1) * r) - resultD2Minus - s * resultD1Minus;
 
-                        Tuple2<Float, Float> result1 = new Tuple2<>();
-                        result1._1(callRes);
-                        result1._2(putRes);
+            Tuple2<Float, Float> result1 = new Tuple2<>();
+            result1._1(callRes);
+            result1._2(putRes);
 
-                        return result1;
+            return result1;
 
-                    });
+        });
 
         PArray<Tuple2<Float, Float>> output = blackScholesFunction.apply(input);
 
