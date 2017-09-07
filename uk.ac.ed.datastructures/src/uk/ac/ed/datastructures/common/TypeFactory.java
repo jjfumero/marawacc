@@ -97,6 +97,16 @@ public class TypeFactory {
         return RuntimeObjectTypeInfo.inferFromObject(object);
     }
 
+    /**
+     * Build a TupleN<T1, T2, ...,TN> from an input string that represent that Tuple. For example:
+     *
+     * <pre>
+     * RuntimeTypeInfo t = TypeFactory.Tuple("Tuple2<Float, Long>");
+     * </pre>
+     *
+     * @param tuple
+     * @return {@link RuntimeObjectTypeInfo}
+     */
     public static RuntimeObjectTypeInfo Tuple(String tuple) {
 
         String tupleClean = tuple.replaceAll(" ", "");
@@ -153,7 +163,8 @@ public class TypeFactory {
                 case 8:
                     return new Tuple8<>(typeUtil(matcher.group(1)), typeUtil(m[0]), typeUtil(m[1]), typeUtil(m[2]), typeUtil(m[3]), typeUtil(m[4]), typeUtil(m[5]), typeUtil(m[6])).getType();
                 case 9:
-                    return new Tuple9<>(typeUtil(matcher.group(1)), typeUtil(m[0]), typeUtil(m[1]), typeUtil(m[2]), typeUtil(m[3]), typeUtil(m[4]), typeUtil(m[5]), typeUtil(m[6]), typeUtil(m[7])).getType();
+                    return new Tuple9<>(typeUtil(matcher.group(1)), typeUtil(m[0]), typeUtil(m[1]), typeUtil(m[2]), typeUtil(m[3]), typeUtil(m[4]), typeUtil(m[5]), typeUtil(m[6]),
+                                    typeUtil(m[7])).getType();
                 case 10:
                     return new Tuple10<>(typeUtil(matcher.group(1)), typeUtil(m[0]), typeUtil(m[1]), typeUtil(m[2]), typeUtil(m[3]), typeUtil(m[4]), typeUtil(m[5]), typeUtil(m[6]), typeUtil(m[7]),
                                     typeUtil(m[8])).getType();

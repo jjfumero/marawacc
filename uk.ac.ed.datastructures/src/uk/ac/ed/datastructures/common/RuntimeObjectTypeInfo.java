@@ -69,14 +69,14 @@ public class RuntimeObjectTypeInfo {
         this.nestedTypes = null;
     }
 
-    public RuntimeObjectTypeInfo(Class<?> c, InteropTable interop) {
-        this.klass = c;
+    public RuntimeObjectTypeInfo(Class<?> klass, InteropTable interop) {
+        this.klass = klass;
         this.interop = interop;
         this.nestedTypes = null;
     }
 
-    public RuntimeObjectTypeInfo(Class<?> c, RuntimeObjectTypeInfo... nestedTypes) {
-        this.klass = c;
+    public RuntimeObjectTypeInfo(Class<?> klass, RuntimeObjectTypeInfo... nestedTypes) {
+        this.klass = klass;
         this.nestedTypes = nestedTypes;
     }
 
@@ -217,5 +217,10 @@ public class RuntimeObjectTypeInfo {
         } else {
             return getOCLSizeInterop();
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.klass.getName();
     }
 }
