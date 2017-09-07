@@ -5,7 +5,7 @@ runtime system that orchestrates the execution of the GPU program within Java. M
 
 Marawacc makes use of the Graal compiler and Truffle DSL ([https://github.com/graalvm/graal](https://github.com/graalvm/graal)) to optimise Java and R programs on top of the JVM. 
 
-Marawacc integrates an API, called **JPAI** (Java Programming Array Interface) [2] to develop GPU and multi-core Java applications using the Function interface in Java 8.
+Marawacc integrates an API, called **JPAI** (Java Parallel Array Interface) [2] to develop GPU and multi-core Java applications using the Function interface in Java 8.
 JPAI is a new Java API based on Java 8 Stream for parallel and heterogeneous programming. JPAI uses algorithmic skeletons and the new feature of Java lambda expressions to facilitate the programmability and readability. 
 Parallel operations using map/reduce in JPAI can be composed and reused. 
 
@@ -89,6 +89,7 @@ GPL V2
 Marawacc project is a part of my PhD at the University of Edinburgh. My PhD has been partially funded by Oracle Labs.
 
 #### Main Developer
+
 * Juan Fumero <juan.fumero @ ed.ac.uk>
 
 #### Supervisors

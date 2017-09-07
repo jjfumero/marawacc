@@ -103,13 +103,15 @@ public class OCLMathIntrinsicNode extends UnaryNode implements ArithmeticLIRLowe
 
     protected OCLMathIntrinsicNode(ValueNode value, Operation op) {
         super(TYPE, StampFactory.forKind(JavaKind.Float), value);
-        assert value.stamp() instanceof FloatStamp && PrimitiveStamp.getBits(value.stamp()) == 64;
+        // assert value.stamp() instanceof FloatStamp && PrimitiveStamp.getBits(value.stamp()) ==
+        // 64;
         this.operation = op;
     }
 
     protected OCLMathIntrinsicNode(ValueNode value, ValueNode value2, Operation op) {
         super(TYPE, StampFactory.forKind(JavaKind.Float), value);
-        assert value.stamp() instanceof FloatStamp && PrimitiveStamp.getBits(value.stamp()) == 64;
+        // assert value.stamp() instanceof FloatStamp && PrimitiveStamp.getBits(value.stamp()) ==
+        // 64;
         this.operation = op;
         this.param2 = value2;
     }
