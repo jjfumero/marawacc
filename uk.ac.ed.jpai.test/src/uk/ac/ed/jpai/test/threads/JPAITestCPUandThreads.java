@@ -23,13 +23,13 @@ package uk.ac.ed.jpai.test.threads;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.stream.IntStream;
 
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.oracle.graal.replacements.nodes.AssertionNode;
 
 import uk.ac.ed.accelerator.math.ocl.OCLMath;
 import uk.ac.ed.datastructures.common.PArray;
@@ -217,6 +217,92 @@ public class JPAITestCPUandThreads {
 
         for (int i = 0; i < output.size(); ++i) {
             assertEquals(input.get(i) * 3.0, output.get(i), 0.001);
+        }
+    }
+
+    @Test
+    public void testCollections_ArrayList() {
+
+        ArrayList<Integer> l = new ArrayList<>();
+        int size = 73;
+        for (int i = 0; i < size; i++) {
+            l.add(i);
+        }
+
+        PArray<Integer> input = new PArray<>(size, TypeFactory.Integer());
+        for (int i = 0; i < size; ++i) {
+            input.put(i, i);
+        }
+
+        // Only access using get allowed.
+        ArrayFunction<Integer, Integer> mapTimesThree = new MapJavaThreads<>(i -> {
+            return i * 3 + l.get(i);
+        });
+
+        PArray<Integer> output = mapTimesThree.apply(input);
+
+        for (int i = 0; i < output.size(); ++i) {
+            assertEquals(input.get(i) * 3 + l.get(i), output.get(i), 0.1);
+        }
+    }
+
+    @Test
+    public void testCollections_ArrayList02() {
+
+        ArrayList<Integer> l = new ArrayList<>();
+        int size = 73;
+        for (int i = 0; i < size; i++) {
+            l.add(i);
+        }
+
+        PArray<Integer> input = new PArray<>(size, TypeFactory.Integer());
+        for (int i = 0; i < size; ++i) {
+            input.put(i, i);
+        }
+
+        // Only access using get allowed.
+        ArrayFunction<Integer, Integer> mapTimesThree = new MapJavaThreads<>(i -> {
+            ArrayList<Integer> a = new ArrayList<>();
+            for (int j = 0; j < 100; j++) {
+                a.add(j);
+            }
+            int sum = 0;
+            for (int j = 0; j < 100; j++) {
+                sum += a.get(j);
+            }
+            return sum;
+        });
+
+        PArray<Integer> output = mapTimesThree.apply(input);
+
+        for (int i = 0; i < output.size(); ++i) {
+            assertEquals(4950, output.get(i), 0.1);
+        }
+    }
+
+    @Test
+    public void testCollections_HashMap() {
+
+        HashMap<Integer, Integer> l = new HashMap<>();
+        int size = 73;
+        for (int i = 0; i < size; i++) {
+            l.put(i, i + 100);
+        }
+
+        PArray<Integer> input = new PArray<>(size, TypeFactory.Integer());
+        for (int i = 0; i < size; ++i) {
+            input.put(i, i);
+        }
+
+        // Only access using get allowed.
+        ArrayFunction<Integer, Integer> mapTimesThree = new MapJavaThreads<>(i -> {
+            return i * 3 + l.get(i);
+        });
+
+        PArray<Integer> output = mapTimesThree.apply(input);
+
+        for (int i = 0; i < output.size(); ++i) {
+            assertEquals(input.get(i) * 3 + l.get(i), output.get(i), 0.1);
         }
     }
 
