@@ -33,6 +33,7 @@ import com.oracle.graal.replacements.nodes.AssertionNode;
 
 import uk.ac.ed.accelerator.math.ocl.OCLMath;
 import uk.ac.ed.datastructures.common.PArray;
+import uk.ac.ed.datastructures.common.RuntimeObjectTypeInfo;
 import uk.ac.ed.datastructures.common.TypeFactory;
 import uk.ac.ed.datastructures.tuples.Tuple2;
 import uk.ac.ed.datastructures.tuples.Tuple4;
@@ -99,10 +100,7 @@ public class JPAITestCPUandThreads {
         }
         PArray<Float> output = mult.apply(input);
 
-        PArray<Float> output2 = Marawacc.<Float, Float> zip2()
-                        .map(t -> t._1() * t._2())
-                        .reduce((x, y) -> x + y, 0.0f)
-                        .apply(input);
+        PArray<Float> output2 = Marawacc.<Float, Float> zip2().map(t -> t._1() * t._2()).reduce((x, y) -> x + y, 0.0f).apply(input);
 
         Float reduction = 0.0f;
         for (int i = 0; i < output.size(); ++i) {
@@ -281,25 +279,25 @@ public class JPAITestCPUandThreads {
 
         ArrayFunction<Long, Float> function = Marawacc.mapJavaThreads(4, z -> {
             // generate a pseudo random number (you do need it twice)
-                        long seed = z;
-                        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-                        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+            long seed = z;
+            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
 
-                        // this generates a number between -1 and 1 (with an awful entropy)
-                        float x = -1 + 2 * (seed & 0x0FFFFFFF) / 268435455f;
+            // this generates a number between -1 and 1 (with an awful entropy)
+            float x = -1 + 2 * (seed & 0x0FFFFFFF) / 268435455f;
 
-                        // repeat for y
-                        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-                        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-                        float y = -1 + 2 * (seed & 0x0FFFFFFF) / 268435455f;
-                        float compute = x * x + y * y;
+            // repeat for y
+            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+            float y = -1 + 2 * (seed & 0x0FFFFFFF) / 268435455f;
+            float compute = x * x + y * y;
 
-                        float result = 0.0f;
-                        if (compute < 1) {
-                            result = 1.0f;
-                        }
-                        return result;
-                    });
+            float result = 0.0f;
+            if (compute < 1) {
+                result = 1.0f;
+            }
+            return result;
+        });
         PArray<Float> output = function.reduce((x, y) -> x + y, 0.0f).apply(input);
         assertNotNull(output);
         assertEquals(3.1416, output.get(0) * 4.0 / size, 0.1);
@@ -351,16 +349,16 @@ public class JPAITestCPUandThreads {
         }).apply(input);
     }
 
-    public static double f(double x) {
-        return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+    public static float f(float x) {
+        return (float) ((float) Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI));
     }
 
-    public static double integrateSeq(double a, double b, int N) {
-        double h = (b - a) / N;
-        double sum = 0.5 * (f(a) + f(b));
+    public static float integrateSeq(float a, float b, int N) {
+        float h = (b - a) / N;
+        float sum = 0.5f * (f(a) + f(b));
 
         for (int i = 1; i < N; i++) {
-            double x = a + h * i;
+            float x = a + h * i;
             sum += f(x);
         }
         return sum * h;
@@ -371,16 +369,16 @@ public class JPAITestCPUandThreads {
 
         final int N = 100;
 
-        ArrayFunction<Tuple4<Double, Double, Integer, Integer>, Double> partialIntegration = new MapJavaThreads<>(x -> {
-            double a = x._1();
-            double b = x._2();
+        ArrayFunction<Tuple4<Float, Float, Integer, Integer>, Float> partialIntegration = new MapJavaThreads<>(x -> {
+            float a = x._1();
+            float b = x._2();
             int inf = x._3();
             int sup = x._4();
-            double h = (b - a) / N;
-            double sum = 0.5 * (f(a) + f(b));
+            float h = (b - a) / N;
+            float sum = 0.5f * (f(a) + f(b));
 
             for (int i = inf; i < sup; i++) {
-                double xx = a + h * i;
+                float xx = a + h * i;
                 sum += OCLMath.exp(-xx * xx / 2) / OCLMath.sqrt(2 * Math.PI);
             }
             return sum * h;
@@ -388,20 +386,21 @@ public class JPAITestCPUandThreads {
 
         int partitions = 5;
 
-        PArray<Tuple4<Double, Double, Integer, Integer>> input = new PArray<>(partitions, new Tuple4<>(0.0, 0.0, 0, 0).getType());
-        input.put(0, new Tuple4<>(0.0, 10.0, 1, 20));
-        input.put(1, new Tuple4<>(0.0, 10.0, 21, 40));
-        input.put(2, new Tuple4<>(0.0, 10.0, 41, 60));
-        input.put(3, new Tuple4<>(0.0, 10.0, 61, 80));
-        input.put(3, new Tuple4<>(0.0, 10.0, 81, 100));
+        RuntimeObjectTypeInfo t = TypeFactory.Tuple("Tuple4<Float, Float, Integer, Integer>");
+        PArray<Tuple4<Float, Float, Integer, Integer>> input = new PArray<>(partitions, t);
+        input.put(0, new Tuple4<>(0.0f, 10.0f, 1, 20));
+        input.put(1, new Tuple4<>(0.0f, 10.0f, 21, 40));
+        input.put(2, new Tuple4<>(0.0f, 10.0f, 41, 60));
+        input.put(3, new Tuple4<>(0.0f, 10.0f, 61, 80));
+        input.put(3, new Tuple4<>(0.0f, 10.0f, 81, 100));
 
-        PArray<Double> result = partialIntegration.apply(input);
+        PArray<Float> result = partialIntegration.apply(input);
 
         assertNotNull(result);
 
-        double resultSeq = integrateSeq(0, 10.0, N);
+        float resultSeq = integrateSeq(0f, 10.0f, N);
 
-        double sum = 0.0;
+        float sum = 0.0f;
         for (int i = 0; i < partitions; i++) {
             sum += result.get(i);
         }

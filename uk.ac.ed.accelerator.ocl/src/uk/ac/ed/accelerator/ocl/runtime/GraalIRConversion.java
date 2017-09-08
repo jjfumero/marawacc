@@ -131,7 +131,6 @@ public class GraalIRConversion implements GraalIRUtilities {
         Method applyMethod = null;
         for (Method m : function.getMethods()) {
             if (m.getName().equals("apply")) {
-                assert applyMethod == null : "found more than one implementation: " + function;
                 applyMethod = m;
             }
         }
@@ -167,7 +166,8 @@ public class GraalIRConversion implements GraalIRUtilities {
         Providers providers = backend.getProviders();
         Plugins plugins = new Plugins(new InvocationPlugins(providers.getMetaAccess()));
         StructuredGraph graph = new StructuredGraph(((HotSpotMetaAccessProvider) providers.getMetaAccess()).lookupJavaMethod(method), AllowAssumptions.YES, null);
-        new GraphBuilderPhase.Instance(providers.getMetaAccess(), providers.getStampProvider(), null, GraphBuilderConfiguration.getEagerDefault(plugins), OptimisticOptimizations.ALL, null).apply(graph);
+        new GraphBuilderPhase.Instance(providers.getMetaAccess(), providers.getStampProvider(), null, GraphBuilderConfiguration.getEagerDefault(plugins), OptimisticOptimizations.ALL, null).apply(
+                        graph);
         return graph;
     }
 

@@ -51,8 +51,8 @@ public class ArrayFunctionComposition<T0, T1, T2> extends ArrayFunction<T0, T2> 
         if (inputType == null || outputType == null) {
             inferTypes(input);
         }
-        assert (inputType != null);
-        assert (outputType != null);
+        // assert (inputType != null);
+        // assert (outputType != null);
 
         preparedExecutionFinish = true;
 
@@ -65,8 +65,8 @@ public class ArrayFunctionComposition<T0, T1, T2> extends ArrayFunction<T0, T2> 
 
         inputType = arrayFunction0.getInputType();
         outputType = arrayFunction1.getOutputType();
-        assert (inputType != null);
-        assert (outputType != null);
+        // assert (inputType != null);
+        // assert (outputType != null);
 
         return output;
     }

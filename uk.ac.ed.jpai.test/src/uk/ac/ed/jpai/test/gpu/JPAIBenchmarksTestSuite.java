@@ -267,7 +267,6 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
             inputSeq[i] = i;
         }
 
-        // @formatter:off
         ArrayFunction<Float, Float> blackScholesFunction = new MapAccelerator<>(z -> {
             float idxf = z;
             int idx = (int) idxf;
@@ -297,7 +296,6 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
             sum *= 4;
             return sum / iter;
         });
-        // @formatter:on
 
         PArray<Float> output = blackScholesFunction.apply(input);
 
