@@ -113,13 +113,13 @@ public class AcceleratorPArray<T> extends PArray<T> {
     }
 
     @TruffleBoundary
-    public void computeSizes() {
+    public int computeSizes() {
         computeTotalSize(type, 0, 0);
-        int numElements = 0;
+        int bytesCounter = 0;
         for (int i = 0; i < listDataSize.size(); i++) {
-            numElements += listDataSize.get(i).getBytes();
+            bytesCounter += listDataSize.get(i).getBytes();
         }
-        System.out.println("SUM: " + numElements);
+        return bytesCounter;
     }
 
     @TruffleBoundary
