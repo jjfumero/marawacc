@@ -157,17 +157,24 @@ public class OCLGraalAcceleratorVar extends GraalAcceleratorVar {
         }
 
         if (this.direction == GraalOCLConstants.COPY_IN) {
-            cl_event event = new cl_event();
+            cl_event writeEvent = new cl_event();
             boolean block = (GraalAcceleratorOptions.offloadSync == true) ? CL.CL_TRUE : CL.CL_FALSE;
             int fromHotsOffset = (this.extraArray) ? 0 : fromTo[0];
             if (GraalAcceleratorOptions.printOCLInfo) {
                 LoggerMarawacc.info("[OCL EnqueueWriteBuffer] writing variable Host -> Device  -- from " + fromHotsOffset);
             }
             int bytesForDataType = getBytesForDataType(this.getType());
-            CL.clEnqueueWriteBufferWithHostOffset(queue, buffer, block, 0, this.getType() * this.getArrayLength(), this.getPointer(), 0, null, event, fromHotsOffset * bytesForDataType);
+
+            Pointer ptr = getPointer();
+            ptr = ptr.withByteOffset(fromHotsOffset * bytesForDataType);
+            int totalSize = getType() * getArrayLength();
+            CL.clEnqueueWriteBuffer(queue, buffer, block, 0, totalSize, ptr, 0, null, writeEvent);
+
+            // CL.clEnqueueWriteBufferWithHostOffset(queue, buffer, block, 0, totalSize,
+            // this.getPointer(), 0, null, event, fromHotsOffset * bytesForDataType);
 
             this.memObject = buffer;
-            return (new StageInfo(buffer, event, this.getPointer()));
+            return (new StageInfo(buffer, writeEvent, this.getPointer()));
         }
         return (new StageInfo(null, null, this.getPointer()));
     }
@@ -191,12 +198,18 @@ public class OCLGraalAcceleratorVar extends GraalAcceleratorVar {
             int bytesForDataType = getBytesForDataType(this.getType());
             int fromHotsOffset = (this.extraArray) ? 0 : fromTo[0];
 
-            Pointer pointer = (Pointer) pointerJavaObject;
+            int totalSize = this.getType() * this.getArrayLength();
+            Pointer basePointer = (Pointer) pointerJavaObject;
+            Pointer pointer = basePointer.withByteOffset(fromHotsOffset * bytesForDataType);
 
             long start = System.nanoTime();
-            CL.clEnqueueReadBufferWithHostOffset(queue, pipelineMem, CL.CL_TRUE, 0, this.getType() * this.getArrayLength(), pointer, eventKernel.length, eventKernel, eventReader, fromHotsOffset *
-                            bytesForDataType);
+            CL.clEnqueueReadBuffer(queue, pipelineMem, CL.CL_TRUE, 0, totalSize, pointer, eventKernel.length, eventKernel, eventReader);
+            // CL.clEnqueueReadBufferWithHostOffset(queue, pipelineMem, CL.CL_TRUE, 0,
+            // this.getType() * this.getArrayLength(), pointer, eventKernel.length, eventKernel,
+            // eventReader, fromHotsOffset *
+            // bytesForDataType);
             long end = System.nanoTime();
+
             PipelineTimeDescritor.getInstance().put(Stage.FINE_TUNE_COPY_OUT, (end - start));
             PipelineTimeDescritor.getInstance().put(Stage.FINE_TUNE_COPY_START, start);
             PipelineTimeDescritor.getInstance().put(Stage.FINE_TUNE_COPY_STOP, end);
