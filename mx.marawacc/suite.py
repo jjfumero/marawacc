@@ -43,7 +43,7 @@ suite = {
       "urls" : [
         	"http://homepages.inf.ed.ac.uk/s1369892/JOCL-0.1.9.jar",	
 		],
-		"sha1" : "28f1940a024cad12f4ceb84bb30db124524053a6",
+		"sha1" : "e0ef09966507d23c2d33398215f268e3a9578fb8",
     },
   },
 
