@@ -22,8 +22,10 @@ package uk.ac.ed.jpai;
 
 import java.util.function.Function;
 
+import jdk.vm.ci.code.InvalidInstalledCodeException;
 import uk.ac.ed.datastructures.common.ArraySlice;
 import uk.ac.ed.datastructures.common.PArray;
+import uk.ac.ed.jpai.jit.JPAICompileFunctionThread;
 
 public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
 
@@ -37,6 +39,26 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
     public MapJavaThreads(int numberOfThreads, Function<inT, outT> f) {
         super(f);
         this.numberOfThreads = numberOfThreads;
+    }
+
+    // Example of custom compilation
+    private void customUDFCompilation(PArray<inT> input) {
+        JPAICompileFunctionThread<inT, outT> compilation = new JPAICompileFunctionThread<>(function);
+        compilation.start();
+
+        try {
+            compilation.join();
+        } catch (InterruptedException e) {
+
+        }
+
+        try {
+            outT executeCompiledCode = compilation.executeCompiledCode(input.get(0));
+            System.out.println("Result: " + executeCompiledCode);
+        } catch (InvalidInstalledCodeException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
     }
 
     @Override

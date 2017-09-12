@@ -221,6 +221,23 @@ public class JPAITestCPUandThreads {
     }
 
     @Test
+    public void testJavaThreadMap2() {
+        ArrayFunction<Integer, Integer> mapTimesThree = new MapJavaThreads<>(i -> i + 1);
+
+        int size = 73;
+        PArray<Integer> input = new PArray<>(size, TypeFactory.Integer());
+        for (int i = 0; i < size; ++i) {
+            input.put(i, i + 10);
+        }
+
+        PArray<Integer> output = mapTimesThree.apply(input);
+
+        for (int i = 0; i < output.size(); ++i) {
+            assertEquals(input.get(i) + 1, output.get(i), 0.001);
+        }
+    }
+
+    @Test
     public void testCollections_ArrayList() {
 
         ArrayList<Integer> l = new ArrayList<>();
