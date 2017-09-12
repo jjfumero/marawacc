@@ -12,6 +12,7 @@ mx $vm \
 	-Xms4g \
 	-jvmci \
 	-Dmarawacc.printOCLKernel=true \
+	-Dmarawacc.threadGraalCompilation=10 \
 	-Dmarawacc.dumpGraph=true \
 	-Dmarawacc.multidevice=true \
 	-Dmarawacc.useVectorTypes=true \

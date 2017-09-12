@@ -145,6 +145,17 @@ public final class GraalAcceleratorOptions {
     public static boolean templateVerbose = false;
 
     /**
+     * When running with multiple threads if this value is true the JIT compilation is peformed via
+     * Graal.
+     */
+    public static boolean threadsGraalCompilation = getBoolean("marawacc.threadGraalCompilatoin", false);
+
+    /**
+     * Set default value for Graal compilation.
+     */
+    public static int threadsGraalCompilationThreshold = getIntValue("marawacc.threadGraalCompilation", 10);
+
+    /**
      * Platforms supported
      */
     public enum AcceleratorPlatformKind {
@@ -183,6 +194,15 @@ public final class GraalAcceleratorOptions {
             return false;
         }
         return defaultValue;
+    }
+
+    private static int getIntValue(String property, int defaultValue) {
+        if (System.getProperty(property) == null) {
+            return defaultValue;
+        } else {
+            int value = Integer.parseInt(System.getProperty(property).toLowerCase());
+            return value;
+        }
     }
 
     /**

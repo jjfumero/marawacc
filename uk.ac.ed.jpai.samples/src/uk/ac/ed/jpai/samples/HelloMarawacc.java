@@ -22,6 +22,7 @@
  */
 package uk.ac.ed.jpai.samples;
 
+import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
 import uk.ac.ed.accelerator.profiler.Profiler;
 import uk.ac.ed.datastructures.common.PArray;
 import uk.ac.ed.datastructures.common.TypeFactory;
@@ -45,6 +46,8 @@ public class HelloMarawacc {
     private static final int ITERATIONS = 11;
 
     public static void main(String[] args) throws Exception {
+
+        System.out.println(GraalAcceleratorOptions.threadsGraalCompilationThreshold);
 
         // We force the GPU execution, if not, an exception will be launched.
         // This flag is true by default, which means that if there is any exception
