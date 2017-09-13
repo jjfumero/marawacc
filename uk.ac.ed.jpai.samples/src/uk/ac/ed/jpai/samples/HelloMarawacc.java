@@ -47,8 +47,6 @@ public class HelloMarawacc {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println(GraalAcceleratorOptions.threadsGraalCompilationThreshold);
-
         // We force the GPU execution, if not, an exception will be launched.
         // This flag is true by default, which means that if there is any exception
         // in OpenCL, we catch it and run the Java Thread applications instead.
