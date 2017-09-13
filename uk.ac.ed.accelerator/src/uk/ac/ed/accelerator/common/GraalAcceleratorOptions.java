@@ -148,7 +148,7 @@ public final class GraalAcceleratorOptions {
      * When running with multiple threads if this value is true the JIT compilation is peformed via
      * Graal.
      */
-    public static boolean threadsGraalCompilation = getBoolean("marawacc.threadGraalCompilatoin", false);
+    public static boolean threadsGraalCompilation = getBoolean("marawacc.threadGraalCompilatoin", true);
 
     /**
      * Set default value for Graal compilation.

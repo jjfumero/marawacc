@@ -20,9 +20,13 @@
 
 package uk.ac.ed.jpai;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import jdk.vm.ci.code.InstalledCode;
 import jdk.vm.ci.code.InvalidInstalledCodeException;
+import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
 import uk.ac.ed.datastructures.common.ArraySlice;
 import uk.ac.ed.datastructures.common.PArray;
 import uk.ac.ed.jpai.jit.JPAICompileFunctionThread;
@@ -42,7 +46,8 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
     }
 
     // Example of custom compilation
-    private void customUDFCompilation(PArray<inT> input) {
+    @SuppressWarnings("unused")
+    private InstalledCode customUDFCompilation(PArray<inT> input) {
         JPAICompileFunctionThread<inT, outT> compilation = new JPAICompileFunctionThread<>(function);
         compilation.start();
 
@@ -52,6 +57,7 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
 
         }
 
+        // Debug only
         try {
             outT executeCompiledCode = compilation.executeCompiledCode(input.get(0));
             System.out.println("Result: " + executeCompiledCode);
@@ -59,10 +65,128 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
+        return compilation.getInstalledCode();
     }
 
-    @Override
-    public PArray<outT> apply(PArray<inT> input) {
+    private static class MethodCompilation {
+
+        private static MethodCompilation instance = null;
+        private boolean compiling = false;
+        private JPAICompileFunctionThread<?, ?> compilation;
+
+        public static MethodCompilation getInstance() {
+            if (instance == null) {
+                instance = new MethodCompilation();
+            }
+            return instance;
+        }
+
+        private MethodCompilation() {
+        }
+
+        public synchronized <inT, outT> void compileMethod(Function<inT, outT> function) {
+            if (!compiling) {
+                compiling = true;
+                this.compilation = new JPAICompileFunctionThread<>(function);
+                compilation.start();
+            }
+        }
+
+        public boolean isCompilationFinished() {
+            if (compilation == null) {
+                return false;
+            }
+            return compilation.isCompilationFinished();
+        }
+
+        public InstalledCode getCompileFunction() {
+            if (compilation == null) {
+                return null;
+            }
+            return compilation.getInstalledCode();
+        }
+
+        public void clean() {
+            instance = null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public PArray<outT> applyAndCompilation(PArray<inT> input) {
+
+        System.out.println("Using new apply");
+
+        if (!preparedExecutionFinish) {
+            prepareExecution(input);
+        }
+
+        if (numberOfThreads == 0) {
+            // provoked from a deoptimization
+            numberOfThreads = Runtime.getRuntime().availableProcessors();
+        }
+
+        if (output == null) {
+            output = allocateOutputArray(input.size(), input.getStorageMode());
+        }
+
+        ArraySlice<inT>[] inputSlices = input.splitInFixedNumberOfChunks(numberOfThreads);
+        ArraySlice<outT>[] outputSlices = output.splitInFixedNumberOfChunks(numberOfThreads);
+
+        AtomicInteger atomicCounter = new AtomicInteger(0);
+        AtomicBoolean compiling = new AtomicBoolean(false);
+
+        // each thread executes a sequential map
+        Thread[] threads = new Thread[numberOfThreads];
+        for (int t = 0; t < numberOfThreads; t++) {
+            int j = t;
+            threads[t] = new Thread(() -> {
+
+                // Logic per thread
+                for (int i = 0; i < inputSlices[j].size(); ++i) {
+
+                    synchronized (compiling) {
+                        int incrementAndGet = 0;
+                        if (!compiling.get()) {
+                            incrementAndGet = atomicCounter.incrementAndGet();
+                        }
+                        if (!compiling.get() && incrementAndGet >= GraalAcceleratorOptions.threadsGraalCompilationThreshold) {
+                            compiling.set(true);
+                            MethodCompilation.getInstance().compileMethod(function);
+                        }
+                    }
+
+                    outT result = null;
+                    if (MethodCompilation.getInstance().isCompilationFinished()) {
+                        try {
+                            result = (outT) MethodCompilation.getInstance().getCompileFunction().executeVarargs(inputSlices[j].get(i));
+                        } catch (InvalidInstalledCodeException e) {
+                            System.out.println("Error when compiling with Graal");
+                            result = function.apply(inputSlices[j].get(i));
+                        }
+
+                    } else {
+                        result = function.apply(inputSlices[j].get(i));
+                    }
+                    outputSlices[j].put(i, result);
+                }
+            });
+            threads[t].start();
+        }
+
+        try {
+            for (Thread thread : threads) {
+                thread.join();
+            }
+        } catch (InterruptedException e) {
+            System.err.println("Error in MapJavaThreads map execution (join) operation");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        MethodCompilation.getInstance().clean();
+        return output;
+    }
+
+    public PArray<outT> applyUsingC2(PArray<inT> input) {
 
         if (!preparedExecutionFinish) {
             prepareExecution(input);
@@ -85,6 +209,7 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
         for (int t = 0; t < numberOfThreads; t++) {
             int j = t;
             threads[t] = new Thread(() -> {
+                // Logic per thread
                 for (int i = 0; i < inputSlices[j].size(); ++i) {
                     outputSlices[j].put(i, function.apply(inputSlices[j].get(i)));
                 }
@@ -96,13 +221,20 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
             for (Thread thread : threads) {
                 thread.join();
             }
-
         } catch (InterruptedException e) {
             System.err.println("Error in MapJavaThreads map execution (join) operation");
             e.printStackTrace();
             System.exit(-1);
         }
-
         return output;
+    }
+
+    @Override
+    public PArray<outT> apply(PArray<inT> input) {
+        if (GraalAcceleratorOptions.threadsGraalCompilation) {
+            return applyAndCompilation(input);
+        } else {
+            return applyUsingC2(input);
+        }
     }
 }

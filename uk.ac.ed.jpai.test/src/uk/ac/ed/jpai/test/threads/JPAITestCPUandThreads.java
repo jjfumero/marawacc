@@ -224,7 +224,7 @@ public class JPAITestCPUandThreads {
     public void testJavaThreadMap2() {
         ArrayFunction<Integer, Integer> mapTimesThree = new MapJavaThreads<>(i -> i + 1);
 
-        int size = 73;
+        int size = 1000000;
         PArray<Integer> input = new PArray<>(size, TypeFactory.Integer());
         for (int i = 0; i < size; ++i) {
             input.put(i, i + 10);

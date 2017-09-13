@@ -31,6 +31,7 @@ public class JPAICompileFunctionThread<inT, outT> extends Thread {
 
     private Function<inT, outT> function = null;
     private InstalledCode compiledCode = null;
+    private boolean compilationFinished = false;
 
     public JPAICompileFunctionThread(Function<inT, outT> function) {
         this.function = function;
@@ -49,11 +50,18 @@ public class JPAICompileFunctionThread<inT, outT> extends Thread {
         return (outT) compiledCode.executeVarargs(input);
     }
 
+    public boolean isCompilationFinished() {
+        return compilationFinished;
+    }
+
     @Override
     public void run() {
+        // System.out.println("COMPILING............");
         JITGraalCompilerUtil compiler = new JITGraalCompilerUtil();
         ResolvedJavaMethod resolvedJavaMethodForUserFunction = GraalIRConversion.getResolvedJavaMethodForUserFunction(function.getClass());
         this.compiledCode = compiler.compile(resolvedJavaMethodForUserFunction);
+        compilationFinished = true;
+        // System.out.println("COMPILATION FINISHED");
     }
 
 }
