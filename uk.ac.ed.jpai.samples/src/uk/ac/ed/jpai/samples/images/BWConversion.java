@@ -47,6 +47,8 @@ public class BWConversion {
         private static final long serialVersionUID = 1L;
         private BufferedImage image;
 
+        private static final boolean PARALLEL_COMPUTATION = true;
+
         public LoadImage() {
             try {
                 image = ImageIO.read(new File("/tmp/image.png"));
@@ -54,11 +56,10 @@ public class BWConversion {
             }
         }
 
-        @SuppressWarnings("unused")
-        private void sequentialComputation() {
+        private void sequentialComputation(Graphics g) {
 
-            int w = this.image.getWidth();
-            int s = this.image.getHeight();
+            int w = image.getWidth();
+            int s = image.getHeight();
 
             for (int i = 0; i < w; i++) {
                 for (int j = 0; j < s; j++) {
@@ -77,13 +78,16 @@ public class BWConversion {
                 }
             }
 
+            // draw the image
+            g.drawImage(this.image, 0, 0, null);
         }
 
-        @Override
-        public void paint(Graphics g) {
+        private void parallelComputationWithJPAI(Graphics g) {
 
-            int w = this.image.getWidth();
-            int s = this.image.getHeight();
+            System.out.println("Parallel Computation");
+
+            int w = image.getWidth();
+            int s = image.getHeight();
 
             // Transform the input data into PArray Form
             PArray<Integer> color = new PArray<>(w * s, TypeFactory.Integer());
@@ -118,6 +122,15 @@ public class BWConversion {
 
             // draw the image
             g.drawImage(this.image, 0, 0, null);
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            if (PARALLEL_COMPUTATION) {
+                parallelComputationWithJPAI(g);
+            } else {
+                sequentialComputation(g);
+            }
         }
 
         @Override
