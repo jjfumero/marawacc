@@ -61,6 +61,7 @@ public class BWConversion {
             int w = image.getWidth();
             int s = image.getHeight();
 
+            long start = System.nanoTime();
             for (int i = 0; i < w; i++) {
                 for (int j = 0; j < s; j++) {
 
@@ -77,6 +78,8 @@ public class BWConversion {
                     image.setRGB(i, j, gray);
                 }
             }
+            long end = System.nanoTime();
+            System.out.println("Total time: " + (end - start) + " (ns)");
 
             // draw the image
             g.drawImage(this.image, 0, 0, null);
@@ -84,11 +87,10 @@ public class BWConversion {
 
         private void parallelComputationWithJPAI(Graphics g) {
 
-            System.out.println("Parallel Computation");
-
             int w = image.getWidth();
             int s = image.getHeight();
 
+            long start = System.nanoTime();
             // Transform the input data into PArray Form
             PArray<Integer> color = new PArray<>(w * s, TypeFactory.Integer());
             for (int i = 0; i < w; i++) {
@@ -119,6 +121,8 @@ public class BWConversion {
                     image.setRGB(i, j, result.get((i) * s + j));
                 }
             }
+            long end = System.nanoTime();
+            System.out.println("Total time: " + (end - start) + " (ns)");
 
             // draw the image
             g.drawImage(this.image, 0, 0, null);
