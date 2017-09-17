@@ -50,6 +50,7 @@ suite = {
   "projects" : {
 
 	"uk.ac.ed.accelerator.hotspot" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [
 				"graal:GRAAL_TRUFFLE_HOTSPOT",
@@ -60,6 +61,7 @@ suite = {
     },
 
 	"uk.ac.ed.accelerator" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [
 			"JOCL",
@@ -71,6 +73,7 @@ suite = {
     },
 
     "uk.ac.ed.jpai" : {
+      "subDir" : "src",
       "sourceDirs" : ["src","test"],
       "dependencies" : [
 		"graal:GRAAL_HOTSPOT",
@@ -87,6 +90,7 @@ suite = {
     },
 
      "uk.ac.ed.jpai.test" : {
+      "subDir" : "src",
       "sourceDirs" : ["src","test"],
       "dependencies" : [
 		"graal:GRAAL_HOTSPOT",
@@ -104,6 +108,7 @@ suite = {
     },
 
     "uk.ac.ed.jpai.samples" : {
+      "subDir" : "src",
       "sourceDirs" : ["src","test"],
       "dependencies" : [
 		"graal:GRAAL_HOTSPOT",
@@ -119,7 +124,8 @@ suite = {
       "workingSets" : "Graal,HotSpot",
     },
 
-      "uk.ac.ed.replacements" : {
+    "uk.ac.ed.replacements" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [
 			"graal:GRAAL",
@@ -136,6 +142,7 @@ suite = {
     },
 
     "uk.ac.ed.datastructures" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [ 
 			"JOCL", 
@@ -149,6 +156,7 @@ suite = {
     },
 
 	"uk.ac.ed.accelerator.ocl" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [
 			"JOCL",
@@ -166,6 +174,7 @@ suite = {
     },
 
     "uk.ac.ed.compiler.utils" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [
 			"graal:GRAAL_COMPILER",
@@ -180,6 +189,7 @@ suite = {
     },
 
     "uk.ac.ed.compiler.utils.test" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [
 			"graal:GRAAL_COMPILER",
@@ -196,6 +206,7 @@ suite = {
     },
 
 	"uk.ac.ed.accelerator.nfi.ocl.test" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "dependencies" : [
                        "graal:GRAAL_TRUFFLE_HOTSPOT",
@@ -208,6 +219,7 @@ suite = {
     },
 
 	"uk.ac.ed.accelerator.math" : {
+      "subDir" : "src",
       "sourceDirs" : ["src"],
       "checkstyle" : "com.oracle.graal.graph",
       "javaCompliance" : "1.8",
