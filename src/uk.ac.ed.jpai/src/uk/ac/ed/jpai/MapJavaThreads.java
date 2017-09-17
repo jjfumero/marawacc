@@ -45,31 +45,8 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
         this.numberOfThreads = numberOfThreads;
     }
 
-    // Example of custom compilation
-    @SuppressWarnings("unused")
-    private InstalledCode customUDFCompilation(PArray<inT> input) {
-        JPAICompileFunctionThread<inT, outT> compilation = new JPAICompileFunctionThread<>(function);
-        compilation.start();
-
-        try {
-            compilation.join();
-        } catch (InterruptedException e) {
-
-        }
-
-        // Debug only
-        try {
-            outT executeCompiledCode = compilation.executeCompiledCode(input.get(0));
-            System.out.println("Result: " + executeCompiledCode);
-        } catch (InvalidInstalledCodeException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        return compilation.getInstalledCode();
-    }
-
+    // Class for Graal compilation when running a user function (UDF) with Java threads in JPAI
     private static class MethodCompilation {
-
         private static MethodCompilation instance = null;
         private boolean compiling = false;
         private JPAICompileFunctionThread<?, ?> compilation;
@@ -87,7 +64,7 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
         public synchronized <inT, outT> void compileMethod(Function<inT, outT> function) {
             if (!compiling) {
                 compiling = true;
-                this.compilation = new JPAICompileFunctionThread<>(function);
+                compilation = new JPAICompileFunctionThread<>(function);
                 compilation.start();
             }
         }
@@ -113,8 +90,6 @@ public class MapJavaThreads<inT, outT> extends MapArrayFunction<inT, outT> {
 
     @SuppressWarnings("unchecked")
     public PArray<outT> applyAndCompilation(PArray<inT> input) {
-
-        System.out.println("Using new apply");
 
         if (!preparedExecutionFinish) {
             prepareExecution(input);
