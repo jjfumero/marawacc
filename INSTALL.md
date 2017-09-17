@@ -48,7 +48,7 @@ $ cd graal-ocl
 MX is a tool to manage repositories.  It manages the repository and all the dependencies automatically.
 
 ```bash
-$ mx sclone ssh://hg@bitbucket.org/juanfumero/marawacc-dev marawacc
+$ mx sclone ssh://hg@bitbucket.org/juanfumero/marawacc marawacc
 $ cd marawacc
 $ make 
 ```
