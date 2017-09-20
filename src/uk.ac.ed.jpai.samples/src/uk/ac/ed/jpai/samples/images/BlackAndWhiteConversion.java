@@ -40,7 +40,7 @@ import uk.ac.ed.datastructures.common.TypeFactory;
 import uk.ac.ed.jpai.ArrayFunction;
 import uk.ac.ed.jpai.MapAccelerator;
 
-public class BWConversion {
+public class BlackAndWhiteConversion {
 
     public static class LoadImage extends Component {
 
