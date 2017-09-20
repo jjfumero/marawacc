@@ -215,7 +215,7 @@ public class BlurTransformation {
             // now recombine into the output image - Alpha is 255 for no transparency
             for (int i = 0; i < w; i++) {
                 for (int j = 0; j < h; j++) {
-                    Color c = new Color(resultRed.get(i * h + j), resultBlue.get(i * h + j), resultBlue.get(i * h + j), alphaChannel[i * h + j]);
+                    Color c = new Color(resultRed.get(i * h + j), resultGreen.get(i * h + j), resultBlue.get(i * h + j), alphaChannel[i * h + j]);
                     image.setRGB(i, j, c.getRGB());
                 }
             }
