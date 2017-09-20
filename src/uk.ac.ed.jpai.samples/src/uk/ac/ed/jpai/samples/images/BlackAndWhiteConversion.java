@@ -16,9 +16,6 @@
  * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
  */
 
 package uk.ac.ed.jpai.samples.images;
@@ -40,6 +37,10 @@ import uk.ac.ed.datastructures.common.TypeFactory;
 import uk.ac.ed.jpai.ArrayFunction;
 import uk.ac.ed.jpai.MapAccelerator;
 
+/**
+ * It takes an input coloured input image and transforms it into a grey-scale image.
+ *
+ */
 public class BlackAndWhiteConversion {
 
     public static class LoadImage extends Component {
