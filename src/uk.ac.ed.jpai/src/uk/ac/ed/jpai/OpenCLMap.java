@@ -84,6 +84,8 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
     private AcceleratorPArray<Integer> deoptFlag;
 
+    private ArrayList<ScalarVarInfo> scalarVariableList = new ArrayList<>();
+
     public OpenCLMap(Function<inT, outT> f) {
         super(f);
         uuidKernel = UserFunctionCache.INSTANCE.insertFunction(f);
@@ -96,6 +98,8 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             CL.clEnqueueWriteBuffer(commandQueue, scopeBufferDeviceList.get(bufferIndex), CL.CL_FALSE, 0, s.getSize(), s.getPointer(), 0, null, writeEvent);
             CL.clFlush(commandQueue);
             bufferIndex++;
+
+            // Profiling
             if (GraalAcceleratorOptions.profileOffload) {
                 CL.clSetEventCallback(writeEvent, CL.CL_COMPLETE, OpenCLUtils.makeCallBackFunction(ProfilerType.OCL_WRITE_BUFFER, writeIndex, deviceIndex), null);
             }
@@ -250,7 +254,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         }
     }
 
-    private void setArguments(cl_kernel kernel, int deviceIndex, AcceleratorPArray<inT> in, ArrayList<cl_mem> scopedVariableBuffers, AcceleratorPArray<outT> out) {
+    private void setArguments(cl_kernel kernel, int deviceIndex, AcceleratorPArray<inT> in, ArrayList<cl_mem> scopedVariableBuffers, ArrayList<ScalarVarInfo> scalars, AcceleratorPArray<outT> out) {
         // set arguments
         int argumentNumber = 0;
         int status = 0;
@@ -259,6 +263,25 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             argumentNumber++;
         }
         if (scopedVariableBuffers != null) {
+
+            if (!scalars.isEmpty()) {
+                int memCounter = 0;
+                int scalarCounter = 0;
+                int counter = 0;
+
+                for (ScalarVarInfo s : scalars) {
+
+                    System.out.println("----------> argumentNumber;" + argumentNumber + " var: " + s);
+                    if (s.getOpenCLSize() == Sizeof.cl_int) {
+
+                        System.out.println("INTEGER");
+                        System.out.println("  ===> " + s.getValue());
+                        status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_int, Pointer.to(new int[]{(int) s.getValue()}));
+                        argumentNumber++;
+                    }
+                }
+
+            }
             for (cl_mem scopedBuffer : scopedVariableBuffers) {
                 status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_mem, Pointer.to(scopedBuffer));
                 argumentNumber++;
@@ -300,9 +323,9 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
     private void executeKernelIntoDevice(int deviceIndex, cl_kernel kernel, AcceleratorPArray<inT> input, ArrayList<ArrayList<cl_mem>> scope, AcceleratorPArray<outT> outputLocal) {
 
         if (!scope.isEmpty()) {
-            setArguments(kernel, deviceIndex, input, scope.get(deviceIndex), outputLocal);
+            setArguments(kernel, deviceIndex, input, scope.get(deviceIndex), scalarVariableList, outputLocal);
         } else {
-            setArguments(kernel, deviceIndex, input, null, outputLocal);
+            setArguments(kernel, deviceIndex, input, null, null, outputLocal);
         }
 
         long size = input.isSequence() ? input.getTotalSizeWhenSequence() : input.size();
@@ -320,10 +343,10 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
         cl_command_queue commandQueue = getOpenCLDevice(deviceIndex).getCommandQueue();
 
-        // if (GraalAcceleratorOptions.printOCLInfo) {
-        // System.out.println("[OpenCL] Running kernel with #" + size + " threads");
-        // System.out.println("[OpenCL] LGS #" + localWorkSize[0] + " threads");
-        // }
+        if (GraalAcceleratorOptions.printOCLInfo) {
+            System.out.println("[OpenCL] Running kernel with #" + size + " threads");
+            System.out.println("[OpenCL] Local Group Size with #" + localWorkSize[0] + " threads");
+        }
 
         // Run the kernel
         cl_event kernelEvent = new cl_event();
@@ -563,6 +586,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             // directly passed to the pinned buffer
             pinnedData.put((byte[]) array);
         } else {
+            // XXX: Think a faster way of doing this
             for (int i = 0; i < size; i++) {
                 if (array.getClass() == float[].class) {
                     pinnedData.putFloat(i * JavaDataTypeSizes.FLOAT.getOCLSize(), ((float[]) array)[i]);
@@ -594,6 +618,31 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
         public int getSize() {
             return size;
+        }
+    }
+
+    private static class ScalarVarInfo {
+
+        protected int openCLSize;
+        protected Object value;
+        private int order;
+
+        public ScalarVarInfo(Object value, int openCLSize, int order) {
+            this.value = value;
+            this.openCLSize = openCLSize;
+            this.order = order;
+        }
+
+        public int getOpenCLSize() {
+            return this.openCLSize;
+        }
+
+        public Object getValue() {
+            return this.value;
+        }
+
+        public int getOrder() {
+            return this.order;
         }
     }
 
@@ -641,13 +690,13 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
     }
 
     private void createPinnedBuffersForScopedVariables(PArray<inT> input) {
-        Object[] extraParametersFromTheScope = null;
+        Object[] parametersFromTheScope = null;
 
         try {
             if (GraalAcceleratorOptions.multiOpenCLDevice) {
-                extraParametersFromTheScope = getScope();
+                parametersFromTheScope = getScope();
             } else {
-                extraParametersFromTheScope = getScopeWithFilterPArray(input);
+                parametersFromTheScope = getScopeWithFilterPArray(input);
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException("Upload of scoped variables failed: " + e.getMessage());
@@ -657,13 +706,19 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         if (GraalAcceleratorOptions.multiOpenCLDevice) {
             numDevices = GraalAcceleratorSystem.getInstance().getPlatform().getNumCurrentCurrentDevices();
         }
-        if (extraParametersFromTheScope.length > 0) {
+        if (parametersFromTheScope.length > 0) {
             initLists(numDevices);
         }
 
-        for (Object scopedVar : extraParametersFromTheScope) {
+        int counter = 0;
+        for (Object scopedVar : parametersFromTheScope) {
+
+            System.out.println("Captured variable: " + scopedVar);
+
             if (scopedVar.getClass().isArray()) {
                 // get read only flat reference
+                System.out.println("\t Array class");
+
                 Object array = null;
                 if (isArraySimple(scopedVar.getClass())) {
                     array = scopedVar;
@@ -686,8 +741,12 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
                     // int sizeBuf = getSizeForPartition(totalSize, numDevices, i);
                     createOpenCLBuffersForScopeVars(pinnedData, totalSize, i);
                 }
+                counter++;
+            } else if (scopedVar.getClass() == Integer.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_int, counter));
+                counter++;
             } else {
-                throw new UnsupportedOperationException("Scope var not supported. Only supported arrays and scalars.");
+                throw new UnsupportedOperationException("Scope var not supported. Only supported arrays.");
             }
         }
     }

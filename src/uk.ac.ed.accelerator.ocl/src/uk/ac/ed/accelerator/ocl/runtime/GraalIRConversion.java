@@ -188,9 +188,10 @@ public class GraalIRConversion implements GraalIRUtilities {
         return paramsGPU;
     }
 
-    public static void generateOffloadOpenCLKernel(StructuredGraph graphTemplate, StructuredGraph graphLamda, Class<?> klass, Object[] outputMetadata, AcceleratorOCLInfo typeInfoOCL,
-                    ParallelSkeleton type,
-                    UUID uuidKernel, Object[] lambdaInputParameters, boolean isTruffleCode, ArrayList<Node> scopedNodes, int inputArgs) throws KernelOffloadException {
+    public static void generateOffloadOpenCLKernel(StructuredGraph graphTemplate, StructuredGraph graphLamda,
+                    Class<?> klass, Object[] outputMetadata, AcceleratorOCLInfo typeInfoOCL,
+                    ParallelSkeleton type, UUID uuidKernel, Object[] lambdaInputParameters,
+                    boolean isTruffleCode, ArrayList<Node> scopedNodes, int inputArgs) throws KernelOffloadException {
 
         LambdaFunctionMetadata oclmetadata = createMetadata(type);
         int convertionSoA = typeInfoOCL.getClassInput().getType().getNumAttributes();
