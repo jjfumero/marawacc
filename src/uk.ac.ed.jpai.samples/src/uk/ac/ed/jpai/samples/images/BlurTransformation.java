@@ -118,7 +118,6 @@ public class BlurTransformation {
                 // result += image_value * 0.01f;
 
                 return image_value;
-                // return result > 255 ? 255 : (int) result;
             });
 
 //
@@ -229,8 +228,6 @@ public class BlurTransformation {
                     int rgb = image.getRGB(i, j);
                     alphaChannel[i * h + j] = (rgb >> 24) & 0xFF;
                     redChannel[i * h + j] = (rgb >> 16) & 0xFF;
-                    System.out.println(redChannel[i * h + j]);
-
                     greenChannel[i * h + j] = (rgb >> 8) & 0xFF;
                     blueChannel[i * h + j] = (rgb & 0xFF);
                 }

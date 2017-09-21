@@ -19,7 +19,7 @@ public class TestScopeArrays extends MarawaccOpenCLTestBase {
 
         final int size = 100;
 
-        float[] inreal = new float[size];
+        final float[] inreal = new float[size];
 
         IntStream.range(0, size).parallel().forEach(i -> {
             inreal[i] = 0.01f;
