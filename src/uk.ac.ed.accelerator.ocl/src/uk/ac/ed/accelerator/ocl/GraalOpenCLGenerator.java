@@ -36,40 +36,6 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.Vector;
 
-import jdk.vm.ci.hotspot.HotSpotMetaAccessProvider;
-import jdk.vm.ci.hotspot.HotSpotObjectConstant;
-import jdk.vm.ci.hotspot.HotSpotResolvedJavaType;
-import jdk.vm.ci.meta.Constant;
-import jdk.vm.ci.meta.JavaConstant;
-import jdk.vm.ci.meta.JavaKind;
-import jdk.vm.ci.meta.JavaType;
-import jdk.vm.ci.meta.ResolvedJavaMethod;
-import jdk.vm.ci.meta.ResolvedJavaType;
-import jdk.vm.ci.meta.Signature;
-import jdk.vm.ci.runtime.JVMCI;
-import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
-import uk.ac.ed.accelerator.common.GraalAcceleratorSystem;
-import uk.ac.ed.accelerator.ocl.ExtraArrayNamesManager.ArrayInfo;
-import uk.ac.ed.accelerator.ocl.ParamInfoDirection.Direction;
-import uk.ac.ed.accelerator.ocl.helper.TypeUtil;
-import uk.ac.ed.accelerator.ocl.krnonos.OpenCLExtension;
-import uk.ac.ed.accelerator.ocl.phases.ArrayDepth;
-import uk.ac.ed.accelerator.ocl.runtime.AcceleratorOCLInfo;
-import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType;
-import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType.DataType;
-import uk.ac.ed.accelerator.ocl.runtime.GPUParameters;
-import uk.ac.ed.accelerator.ocl.runtime.KernelOffloadException;
-import uk.ac.ed.accelerator.ocl.runtime.MapToGraal;
-import uk.ac.ed.accelerator.ocl.runtime.ScopeTruffle;
-import uk.ac.ed.accelerator.ocl.runtime.TypeOCLInfo;
-import uk.ac.ed.accelerator.ocl.scope.PArrayScopeManager;
-import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata;
-import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata.TypeOfFunction;
-import uk.ac.ed.accelerator.wocl.OCLDeviceInfo;
-import uk.ac.ed.datastructures.common.PArray;
-import uk.ac.ed.datastructures.tuples.Tuple2;
-import uk.ac.ed.replacements.ocl.OCLMathIntrinsicNode;
-
 import com.oracle.graal.api.runtime.GraalJVMCICompiler;
 import com.oracle.graal.compiler.common.spi.ForeignCallDescriptor;
 import com.oracle.graal.compiler.common.type.ObjectStamp;
@@ -174,6 +140,39 @@ import com.oracle.graal.replacements.nodes.arithmetic.IntegerMulExactNode;
 import com.oracle.graal.replacements.nodes.arithmetic.IntegerSubExactNode;
 import com.oracle.graal.runtime.RuntimeProvider;
 import com.oracle.truffle.api.CompilerDirectives.KnownType;
+
+import jdk.vm.ci.hotspot.HotSpotMetaAccessProvider;
+import jdk.vm.ci.hotspot.HotSpotObjectConstant;
+import jdk.vm.ci.hotspot.HotSpotResolvedJavaType;
+import jdk.vm.ci.meta.Constant;
+import jdk.vm.ci.meta.JavaConstant;
+import jdk.vm.ci.meta.JavaKind;
+import jdk.vm.ci.meta.JavaType;
+import jdk.vm.ci.meta.ResolvedJavaMethod;
+import jdk.vm.ci.meta.ResolvedJavaType;
+import jdk.vm.ci.meta.Signature;
+import jdk.vm.ci.runtime.JVMCI;
+import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
+import uk.ac.ed.accelerator.common.GraalAcceleratorSystem;
+import uk.ac.ed.accelerator.ocl.ExtraArrayNamesManager.ArrayInfo;
+import uk.ac.ed.accelerator.ocl.ParamInfoDirection.Direction;
+import uk.ac.ed.accelerator.ocl.helper.TypeUtil;
+import uk.ac.ed.accelerator.ocl.krnonos.OpenCLExtension;
+import uk.ac.ed.accelerator.ocl.phases.ArrayDepth;
+import uk.ac.ed.accelerator.ocl.runtime.AcceleratorOCLInfo;
+import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType;
+import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType.DataType;
+import uk.ac.ed.accelerator.ocl.runtime.GPUParameters;
+import uk.ac.ed.accelerator.ocl.runtime.KernelOffloadException;
+import uk.ac.ed.accelerator.ocl.runtime.MapToGraal;
+import uk.ac.ed.accelerator.ocl.runtime.ScopeTruffle;
+import uk.ac.ed.accelerator.ocl.scope.PArrayScopeManager;
+import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata;
+import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata.TypeOfFunction;
+import uk.ac.ed.accelerator.wocl.OCLDeviceInfo;
+import uk.ac.ed.datastructures.common.PArray;
+import uk.ac.ed.datastructures.tuples.Tuple2;
+import uk.ac.ed.replacements.ocl.OCLMathIntrinsicNode;
 
 /**
  * Main GraalIR To OpenCL code generator. This corresponds to the Map Parallel skeleton.
@@ -610,7 +609,6 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
             if (dataType != null && dataType.length > 1) {
                 typeKind = getTupleName(dataType);
             }
-            final String structName = " inputStruct";
             signature.append(typeKind + "  inputStruct" + counter);
             symbolTable.add("inputStruct" + counter, paramNode, kind);
             references.put(paramNode, typeKind);
@@ -1254,6 +1252,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
         HashMap<String, String> internalObjectTable = new HashMap<>();
 
         // For vector type specialisation
+        @SuppressWarnings("unused")
         OCLDeviceInfo dev = (OCLDeviceInfo) GraalAcceleratorSystem.getInstance().getPlatform().getDevice().getDeviceInfo();
         // HashMap<Integer, Integer> deviceVectorTypes = dev.getDeviceVectorTypes();
 

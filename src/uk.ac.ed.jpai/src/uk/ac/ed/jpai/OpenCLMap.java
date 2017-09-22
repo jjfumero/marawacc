@@ -621,12 +621,10 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
         protected int openCLSize;
         protected Object value;
-        private int order;
 
-        public ScalarVarInfo(Object value, int openCLSize, int order) {
+        public ScalarVarInfo(Object value, int openCLSize) {
             this.value = value;
             this.openCLSize = openCLSize;
-            this.order = order;
         }
 
         public int getOpenCLSize() {
@@ -637,9 +635,6 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             return this.value;
         }
 
-        public int getOrder() {
-            return this.order;
-        }
     }
 
     private void initLists(int maxDevices) {
@@ -736,7 +731,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
                 counter++;
 
             } else if (scopedVar.getClass() == Integer.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_int, counter));
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_int));
                 counter++;
 
             } else {
