@@ -37,7 +37,7 @@ import uk.ac.ed.datastructures.common.PArray;
 import uk.ac.ed.datastructures.common.TypeFactory;
 import uk.ac.ed.datastructures.tuples.Tuple2;
 import uk.ac.ed.jpai.ArrayFunction;
-import uk.ac.ed.jpai.MapJavaThreads;
+import uk.ac.ed.jpai.MapAccelerator;
 
 /**
  * It applies a Blur filter to an input image. Algorithm taken from CUDA course CS344 in Udacity.
@@ -50,8 +50,8 @@ public class BlurTransformation {
 
         private BufferedImage image;
 
-        public static final boolean PARALLEL_COMPUTATION = true;
-        public static final int FILTER_WIDTH = 31;
+        public static final boolean PARALLEL_COMPUTATION = false;
+        public static final int FILTER_WIDTH = 101;
 
         public BlurFilterImage() {
             loadImage();
@@ -104,7 +104,7 @@ public class BlurTransformation {
                 }
             }
 
-            ArrayFunction<Tuple2<Integer, Integer>, Integer> blurFunction = new MapJavaThreads<>(t -> {
+            ArrayFunction<Tuple2<Integer, Integer>, Integer> blurFunction = new MapAccelerator<>(t -> {
                 int r = t._1();
                 int c = t._2();
                 float result = 0.0f;
