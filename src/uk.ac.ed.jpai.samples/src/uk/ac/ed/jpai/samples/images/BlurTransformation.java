@@ -46,14 +46,17 @@ import uk.ac.ed.jpai.MapAccelerator;
 public class BlurTransformation {
 
     @SuppressWarnings("serial")
-    public static class LoadImage extends Component {
+    public static class BlurFilterImage extends Component {
 
         private BufferedImage image;
-        private static boolean printed = false;
 
         private static final boolean PARALLEL_COMPUTATION = true;
 
-        public LoadImage() {
+        public BlurFilterImage() {
+            loadImage();
+        }
+
+        public void loadImage() {
             try {
                 image = ImageIO.read(new File("/tmp/image.png"));
             } catch (IOException e) {
@@ -130,8 +133,6 @@ public class BlurTransformation {
             int w = image.getWidth();
             int h = image.getHeight();
 
-            System.out.println("W, H" + w + " " + h);
-
             int[] redChannel = new int[w * h];
             int[] greenChannel = new int[w * h];
             int[] blueChannel = new int[w * h];
@@ -175,8 +176,6 @@ public class BlurTransformation {
             }
             long end = System.nanoTime();
             System.out.println("Total time: " + (end - start) + " (ns)");
-
-            printed = true;
         }
 
         private void parallelComputation() {
@@ -223,19 +222,18 @@ public class BlurTransformation {
             }
             long end = System.nanoTime();
             System.out.println("Total time: " + (end - start) + " (ns)");
-
-            printed = true;
         }
 
         @Override
         public void paint(Graphics g) {
-            if (!printed) {
-                if (PARALLEL_COMPUTATION) {
-                    parallelComputation();
-                } else {
-                    sequentialComputation();
-                }
+
+            loadImage();
+            if (PARALLEL_COMPUTATION) {
+                parallelComputation();
+            } else {
+                sequentialComputation();
             }
+
             // draw the image
             g.drawImage(this.image, 0, 0, null);
         }
@@ -248,6 +246,7 @@ public class BlurTransformation {
                 return new Dimension(image.getWidth(), image.getHeight());
             }
         }
+
     }
 
     public static void main(String[] args) {
@@ -260,7 +259,7 @@ public class BlurTransformation {
             }
         });
 
-        frame.add(new LoadImage());
+        frame.add(new BlurFilterImage());
         frame.pack();
         frame.setVisible(true);
     }

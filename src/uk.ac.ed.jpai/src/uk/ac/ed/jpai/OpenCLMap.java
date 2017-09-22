@@ -680,9 +680,34 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         scopeVarList.get(deviceIDX).addAll(propertiesList);
     }
 
+    private void createPinnedMemoryForJavaArray(Object scopedVar, int numDevices) {
+        // get read only flat reference
+        Object array = null;
+        if (isArraySimple(scopedVar.getClass())) {
+            array = scopedVar;
+        } else {
+            // Flatten only if it is > 1D
+            array = ArrayUtil.flattenArray(scopedVar, true);
+        }
+
+        String type = array.getClass().getName();
+        SizeBuffer sizeBuffer = getSizes(type, array);
+
+        int size = sizeBuffer.getSize();
+        int totalSize = sizeBuffer.getTotalSize();
+
+        // We create pinned memory in the host side, the device could be any
+        ByteBuffer pinnedData = createHostPinnedMemoryForVarScope(totalSize);
+        copyDataIntoPinnedBuffer(array, pinnedData, size);
+
+        for (int i = 0; i < numDevices; i++) {
+            // int sizeBuf = getSizeForPartition(totalSize, numDevices, i);
+            createOpenCLBuffersForScopeVars(pinnedData, totalSize, i);
+        }
+    }
+
     private void createPinnedBuffersForScopedVariables(PArray<inT> input) {
         Object[] parametersFromTheScope = null;
-
         try {
             if (GraalAcceleratorOptions.multiOpenCLDevice) {
                 parametersFromTheScope = getScope();
@@ -701,39 +726,25 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             initLists(numDevices);
         }
 
-        int counter = 0;
         for (Object scopedVar : parametersFromTheScope) {
-
             if (scopedVar.getClass().isArray()) {
-                // get read only flat reference
-                Object array = null;
-                if (isArraySimple(scopedVar.getClass())) {
-                    array = scopedVar;
-                } else {
-                    // Flatten only if it is > 1D
-                    array = ArrayUtil.flattenArray(scopedVar, true);
-                }
-
-                String type = array.getClass().getName();
-                SizeBuffer sizeBuffer = getSizes(type, array);
-
-                int size = sizeBuffer.getSize();
-                int totalSize = sizeBuffer.getTotalSize();
-
-                // We create pinned memory in the host side, the device could be any
-                ByteBuffer pinnedData = createHostPinnedMemoryForVarScope(totalSize);
-                copyDataIntoPinnedBuffer(array, pinnedData, size);
-
-                for (int i = 0; i < numDevices; i++) {
-                    // int sizeBuf = getSizeForPartition(totalSize, numDevices, i);
-                    createOpenCLBuffersForScopeVars(pinnedData, totalSize, i);
-                }
-                counter++;
-
+                createPinnedMemoryForJavaArray(scopedVar, numDevices);
             } else if (scopedVar.getClass() == Integer.class) {
                 scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_int));
-                counter++;
-
+            } else if (scopedVar.getClass() == Long.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_long));
+            } else if (scopedVar.getClass() == Double.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_double));
+            } else if (scopedVar.getClass() == Float.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_float));
+            } else if (scopedVar.getClass() == Short.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_short));
+            } else if (scopedVar.getClass() == Byte.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_char));
+            } else if (scopedVar.getClass() == Character.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_char));
+            } else if (scopedVar.getClass() == Boolean.class) {
+                scalarVariableList.add(new ScalarVarInfo(scopedVar, Sizeof.cl_char));
             } else {
                 throw new UnsupportedOperationException("Scope var not supported. Only supported arrays.");
             }
