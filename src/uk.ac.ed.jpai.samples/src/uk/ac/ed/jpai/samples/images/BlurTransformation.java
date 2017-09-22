@@ -37,7 +37,7 @@ import uk.ac.ed.datastructures.common.PArray;
 import uk.ac.ed.datastructures.common.TypeFactory;
 import uk.ac.ed.datastructures.tuples.Tuple2;
 import uk.ac.ed.jpai.ArrayFunction;
-import uk.ac.ed.jpai.MapAccelerator;
+import uk.ac.ed.jpai.MapJavaThreads;
 
 /**
  * It applies a Blur filter to an input image. Algorithm taken from CUDA course CS344 in Udacity.
@@ -50,7 +50,8 @@ public class BlurTransformation {
 
         private BufferedImage image;
 
-        private static final boolean PARALLEL_COMPUTATION = true;
+        public static final boolean PARALLEL_COMPUTATION = true;
+        public static final int FILTER_WIDTH = 31;
 
         public BlurFilterImage() {
             loadImage();
@@ -103,7 +104,7 @@ public class BlurTransformation {
                 }
             }
 
-            ArrayFunction<Tuple2<Integer, Integer>, Integer> blurFunction = new MapAccelerator<>(t -> {
+            ArrayFunction<Tuple2<Integer, Integer>, Integer> blurFunction = new MapJavaThreads<>(t -> {
                 int r = t._1();
                 int c = t._2();
                 float result = 0.0f;
@@ -145,7 +146,7 @@ public class BlurTransformation {
             float[] filter = new float[w * h];
             for (int i = 0; i < w; i++) {
                 for (int j = 0; j < h; j++) {
-                    filter[i * h + j] = 1.f / 49.f;
+                    filter[i * h + j] = 1.f / (FILTER_WIDTH * FILTER_WIDTH);
                 }
             }
 
@@ -160,12 +161,10 @@ public class BlurTransformation {
                 }
             }
 
-            final int filterWidth = 7;
-
             long start = System.nanoTime();
-            channelConvolutionSequential(redChannel, redFilter, w, h, filter, filterWidth);
-            channelConvolutionSequential(greenChannel, greenFilter, w, h, filter, filterWidth);
-            channelConvolutionSequential(blueChannel, blueFilter, w, h, filter, filterWidth);
+            channelConvolutionSequential(redChannel, redFilter, w, h, filter, FILTER_WIDTH);
+            channelConvolutionSequential(greenChannel, greenFilter, w, h, filter, FILTER_WIDTH);
+            channelConvolutionSequential(blueChannel, blueFilter, w, h, filter, FILTER_WIDTH);
 
             // now recombine into the output image - Alpha is 255 for no transparency
             for (int i = 0; i < w; i++) {
@@ -175,7 +174,7 @@ public class BlurTransformation {
                 }
             }
             long end = System.nanoTime();
-            System.out.println("Total time: " + (end - start) + " (ns)");
+            System.out.println("Sequential Total time: \n\tns = " + (end - start) + "\n\tseconds = " + ((end - start) * 1e-9));
         }
 
         private void parallelComputation() {
@@ -191,7 +190,7 @@ public class BlurTransformation {
             float[] filter = new float[w * h];
             for (int i = 0; i < w; i++) {
                 for (int j = 0; j < h; j++) {
-                    filter[i * h + j] = 1.f / 49.f;
+                    filter[i * h + j] = 1.f / (FILTER_WIDTH * FILTER_WIDTH);
                 }
             }
 
@@ -206,12 +205,10 @@ public class BlurTransformation {
                 }
             }
 
-            final int filterWidth = 7;
-
             long start = System.nanoTime();
-            PArray<Integer> resultRed = channelConvolutionWithJPAI(redChannel, w, h, filter, filterWidth);
-            PArray<Integer> resultGreen = channelConvolutionWithJPAI(greenChannel, w, h, filter, filterWidth);
-            PArray<Integer> resultBlue = channelConvolutionWithJPAI(blueChannel, w, h, filter, filterWidth);
+            PArray<Integer> resultRed = channelConvolutionWithJPAI(redChannel, w, h, filter, FILTER_WIDTH);
+            PArray<Integer> resultGreen = channelConvolutionWithJPAI(greenChannel, w, h, filter, FILTER_WIDTH);
+            PArray<Integer> resultBlue = channelConvolutionWithJPAI(blueChannel, w, h, filter, FILTER_WIDTH);
 
             // now recombine into the output image - Alpha is 255 for no transparency
             for (int i = 0; i < w; i++) {
@@ -221,7 +218,8 @@ public class BlurTransformation {
                 }
             }
             long end = System.nanoTime();
-            System.out.println("Total time: " + (end - start) + " (ns)");
+            System.out.println("JPAI Total time: \n\tns = " + (end - start) + "\n\tseconds = " + ((end - start) * 1e-9));
+
         }
 
         @Override
