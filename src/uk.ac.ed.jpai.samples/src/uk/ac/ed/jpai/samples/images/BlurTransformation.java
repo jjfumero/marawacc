@@ -38,8 +38,6 @@ import uk.ac.ed.datastructures.common.TypeFactory;
 import uk.ac.ed.datastructures.tuples.Tuple2;
 import uk.ac.ed.jpai.ArrayFunction;
 import uk.ac.ed.jpai.MapAccelerator;
-import uk.ac.ed.jpai.MapArrayFunction;
-import uk.ac.ed.jpai.MapJavaThreads;
 
 /**
  * It applies a Blur filter to an input image. Algorithm taken from CUDA course CS344 in Udacity.
@@ -91,13 +89,9 @@ public class BlurTransformation {
             }
         }
 
-        private static PArray<Integer> channelConvolutionWithJPAI(int[] channel, float[] filter) {
+        private static PArray<Integer> channelConvolutionWithJPAI(int[] channel, final int numRows, final int numCols, float[] filter, final int filterWidth) {
             // Dealing with an even width filter is trickier
-            final int numRows = 1280;
-            final int numCols = 720;
-            final int filterWidth = 7;
-
-            // assert (filterWidth % 2 == 1);
+            assert (filterWidth % 2 == 1);
 
             PArray<Tuple2<Integer, Integer>> input = new PArray<>(numRows * numCols, TypeFactory.Tuple("Tuple2<Integer, Integer>"));
             for (int i = 0; i < numRows; i++) {
@@ -107,45 +101,25 @@ public class BlurTransformation {
             }
 
             ArrayFunction<Tuple2<Integer, Integer>, Integer> blurFunction = new MapAccelerator<>(t -> {
-
                 int r = t._1();
                 int c = t._2();
-                int image_value = (channel[r * numCols + c]);
-                // float filter_value = filter[(filter_r + (filterWidth / 2)) * filterWidth
-                // + filter_c + (filterWidth / 2)];
+                float result = 0.0f;
+                int low = -1 * (filterWidth / 2);
+                int high = (filterWidth / 2);
+                for (int filter_r = low; filter_r <= high; filter_r++) {
+                    for (int filter_c = low; filter_c <= high; filter_c++) {
 
-                // result += image_value * filter_value;
-                // result += image_value * 0.01f;
+                        int image_r = Math.min(Math.max(r + filter_r, 0), (numRows - 1));
+                        int image_c = Math.min(Math.max(c + filter_c, 0), (numCols - 1));
 
-                return image_value;
+                        float image_value = (channel[image_r * numCols + image_c]);
+                        float filter_value = filter[(filter_r + (filterWidth / 2)) * filterWidth + filter_c + (filterWidth / 2)];
+
+                        result += image_value * filter_value;
+                    }
+                }
+                return (int) result;
             });
-
-//
-//
-// ArrayFunction<Tuple2<Integer, Integer>, Integer> blurFunction = new MapAccelerator<>(t -> {
-//
-// int r = t._1();
-// int c = t._2();
-// float result = 0.0f;
-// int low = -1 * (filterWidth / 2);
-// int high = (filterWidth / 2);
-// for (int filter_r = low; filter_r <= high; filter_r++) {
-// for (int filter_c = low; filter_c <= high; filter_c++) {
-//
-// int image_r = Math.min(Math.max(r + filter_r, 0), (numRows - 1));
-// int image_c = Math.min(Math.max(c + filter_c, 0), (numCols - 1));
-//
-// float image_value = (channel[image_r * numCols + image_c]);
-// // float filter_value = filter[(filter_r + (filterWidth / 2)) * filterWidth
-// // + filter_c + (filterWidth / 2)];
-//
-// // result += image_value * filter_value;
-// result += image_value * 0.01f;
-// }
-// }
-// return (int) result;
-// // return result > 255 ? 255 : (int) result;
-// });
 
             PArray<Integer> output = blurFunction.apply(input);
             return output;
@@ -185,7 +159,7 @@ public class BlurTransformation {
                 }
             }
 
-            int filterWidth = 7;
+            final int filterWidth = 7;
 
             long start = System.nanoTime();
             channelConvolutionSequential(redChannel, redFilter, w, h, filter, filterWidth);
@@ -233,19 +207,12 @@ public class BlurTransformation {
                 }
             }
 
-            int filterWidth = 7;
+            final int filterWidth = 7;
 
             long start = System.nanoTime();
-            // PArray<Integer> resultRed = channelConvolutionWithJPAI(redChannel, w, h, filter,
-            // filterWidth);
-            // PArray<Integer> resultGreen = channelConvolutionWithJPAI(greenChannel, w, h, filter,
-            // filterWidth);
-            // PArray<Integer> resultBlue = channelConvolutionWithJPAI(blueChannel, w, h, filter,
-            // filterWidth);
-
-            PArray<Integer> resultRed = channelConvolutionWithJPAI(redChannel, filter);
-            PArray<Integer> resultGreen = channelConvolutionWithJPAI(greenChannel, filter);
-            PArray<Integer> resultBlue = channelConvolutionWithJPAI(blueChannel, filter);
+            PArray<Integer> resultRed = channelConvolutionWithJPAI(redChannel, w, h, filter, filterWidth);
+            PArray<Integer> resultGreen = channelConvolutionWithJPAI(greenChannel, w, h, filter, filterWidth);
+            PArray<Integer> resultBlue = channelConvolutionWithJPAI(blueChannel, w, h, filter, filterWidth);
 
             // now recombine into the output image - Alpha is 255 for no transparency
             for (int i = 0; i < w; i++) {

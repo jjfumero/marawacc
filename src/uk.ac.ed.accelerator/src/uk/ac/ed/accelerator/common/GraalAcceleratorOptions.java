@@ -61,6 +61,11 @@ public final class GraalAcceleratorOptions {
     public static boolean printOCLInfo = getBoolean("marawacc.printOCLInfo", false);
 
     /**
+     * Print OpenCL information about the threads and block threads.
+     */
+    public static boolean printOCLkernelInfo = getBoolean("marawacc.printOCLKernelInfo", false);
+
+    /**
      * Print Graal-OCL IR. -XX:+PrintGralIR
      */
     public static boolean printGraalIR = getBoolean("marawacc.printGraalIR", false);
@@ -86,7 +91,7 @@ public final class GraalAcceleratorOptions {
     /**
      * Experimental: to include OpenCL multiple-devices.
      */
-    public static boolean multiOpenCLDevice = getBoolean("marawacc.multidevice", false);
+    public static boolean multiOpenCLDevice = getBoolean("marawacc.multidevice", true);
 
     /**
      * Experimental: batch processing when data does not fit on GPU memory.

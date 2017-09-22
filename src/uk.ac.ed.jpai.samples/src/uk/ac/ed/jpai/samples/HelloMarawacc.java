@@ -28,7 +28,6 @@ import uk.ac.ed.datastructures.common.TypeFactory;
 import uk.ac.ed.datastructures.tuples.Tuple2;
 import uk.ac.ed.jpai.ArrayFunction;
 import uk.ac.ed.jpai.MapAccelerator;
-import uk.ac.ed.jpai.MarawaccOptions;
 
 /**
  * Simple example of how to use the GPU from JPAI and manage efficient data transfer to the GPU via
@@ -45,11 +44,6 @@ public class HelloMarawacc {
     private static final int ITERATIONS = 11;
 
     public static void main(String[] args) throws Exception {
-
-        // We force the GPU execution, if not, an exception will be launched.
-        // This flag is true by default, which means that if there is any exception
-        // in OpenCL, we catch it and run the Java Thread applications instead.
-        MarawaccOptions.DEOPTIMIZE = true;
 
         // Function creation - It defines the computation in the lambda expression
         // The following function computes the DAXPY problem.

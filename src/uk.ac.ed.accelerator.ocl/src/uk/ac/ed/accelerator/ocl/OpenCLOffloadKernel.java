@@ -92,7 +92,9 @@ public final class OpenCLOffloadKernel {
                                                              // arguments that is not in the CFG
             }
 
+            // -----------------------------------------------------------------
             // Generate the Main Kernel - Skeleton - (__kernel void mainKernel() { ... } )
+            // -----------------------------------------------------------------
             codeSkeleton.generateMainSkeletonKernel(graph, klass, oclmetadata, typeInfoOCL, ioParams, uuidKernel);
 
             boolean simpleLambdaParameter = codeSkeleton.isSimpleDataTypeLambdaParameter();
@@ -113,7 +115,9 @@ public final class OpenCLOffloadKernel {
             codeLambda.setScopeTruffleList(codeSkeleton.getScopeTruffleList());
             codeLambda.setInputArgs(kernelPackage.getInputArgs());
 
+            // -----------------------------------------------------------------
             // Generate the Lambda Kernel - (<type> lambda$1(...) { ... } )
+            // -----------------------------------------------------------------
             codeLambda.generateOpenCLForLambdaFunction(graphLambda, oclmetadata, typeInfoOCL);
 
             codeSkeleton.setExtraArrayforFunction(codeLambda.isExtraArrayforFunction());

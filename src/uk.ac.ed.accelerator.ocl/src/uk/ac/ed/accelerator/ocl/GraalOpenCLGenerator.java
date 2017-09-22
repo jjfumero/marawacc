@@ -61,6 +61,7 @@ import uk.ac.ed.accelerator.ocl.runtime.GPUParameters;
 import uk.ac.ed.accelerator.ocl.runtime.KernelOffloadException;
 import uk.ac.ed.accelerator.ocl.runtime.MapToGraal;
 import uk.ac.ed.accelerator.ocl.runtime.ScopeTruffle;
+import uk.ac.ed.accelerator.ocl.runtime.TypeOCLInfo;
 import uk.ac.ed.accelerator.ocl.scope.PArrayScopeManager;
 import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata;
 import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata.TypeOfFunction;
@@ -433,7 +434,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
         return kernelSignature.toString();
     }
 
-    protected String generateKernelSignature(StructuredGraph graph) {
+    protected String generateKernelParametersSignature(StructuredGraph graph) {
         String kernelSignature = "(";
         kernelSignature += generateParametersSignature(graph);
         return kernelSignature;
@@ -455,6 +456,12 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
             } else if (type.equals("[D")) {
                 signature = "__global double *p" + counter + ",__constant int *p" + counter + "_index_data";
                 kind = JavaKind.Double;
+            } else if (type.equals("[S")) {
+                signature = "__global short *p" + counter + ",__constant int *p" + counter + "_index_data";
+                kind = JavaKind.Short;
+            } else if (type.equals("[J")) {
+                signature = "__global long *p" + counter + ",__constant int *p" + counter + "_index_data";
+                kind = JavaKind.Long;
             }
         }
 
@@ -497,12 +504,10 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    private String generateLambdaSignature(ParameterNode paramNode, int counter, boolean isObject) {
-        StringBuffer lambdaSignature = new StringBuffer();
+    @SuppressWarnings({"rawtypes"})
+    private String resolveInputDataType() {
         Object[] input = parametersDirection.get(Direction.INPUT);
         String type = "";
-
         try {
             type = TypeUtil.getTypeFromArrayNonPrimitive(input[0].getClass());
         } catch (Exception e) {
@@ -523,6 +528,34 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
                 type = null;
             }
         }
+        return type;
+    }
+
+    private static String getType(String klass) {
+        if (klass.endsWith("[F")) {
+            return "[F";
+        } else if (klass.endsWith("[S")) {
+            return "[S";
+        } else if (klass.endsWith("[D")) {
+            return "[D";
+        } else if (klass.endsWith("[J")) {
+            return "[J";
+        } else if (klass.endsWith("[I")) {
+            return "[I";
+        }
+        return "";
+    }
+
+    @SuppressWarnings("rawtypes")
+    private String generateLambdaSignature(ParameterNode paramNode, int counter, boolean isObject, boolean isScope) {
+        StringBuffer lambdaSignature = new StringBuffer();
+        String type = "";
+
+        if (isScope) {
+            type = getType(paramNode.stamp().toString());
+        } else {
+            type = resolveInputDataType();
+        }
 
         // Assume 1D or 2D. In this point the type should be known
         if (type != null) {
@@ -534,6 +567,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
 
         if (!PArrayScopeManager.INSTANCE.hasScope(uuid)) {
             if (isTruffleFrontEnd()) {
+                Object[] input = parametersDirection.get(Direction.INPUT);
                 lambdaSignature.append(generateStructSignatureForTruffle(paramNode, counter, tuplesInputDataTypes, ((PArray) input[0]).getClassObject()));
             } else {
                 lambdaSignature.append(generateStructSignature(paramNode, counter, tuplesInputDataTypes));
@@ -691,7 +725,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
 
         String kernelSignature = "";
         if (isGeneratingFunction && nodeHelper.isLambdaArgument()) {
-            kernelSignature += generateLambdaSignature(paramNode, nodeHelper.getParamCount(), false);
+            kernelSignature += generateLambdaSignature(paramNode, nodeHelper.getParamCount(), false, nodeHelper.isScope);
             nodeHelper.incParamCount();
             return kernelSignature;
         } else if (isGeneratingFunction && paramNode.getStackKind().isPrimitive()) {
@@ -701,7 +735,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
             nodeHelper.incParamCount();
             return kernelSignature;
         } else if (isGeneratingFunction && paramNode.getStackKind().isObject()) {
-            kernelSignature = generateLambdaSignature(paramNode, nodeHelper.getParamCount(), true);
+            kernelSignature = generateLambdaSignature(paramNode, nodeHelper.getParamCount(), true, nodeHelper.isScope);
             nodeHelper.incParamCount();
 
             if (kernelSignature.equals(",")) {
@@ -879,6 +913,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
         private boolean isTuple;
         private boolean isLambdaArgument;
         private int paramCounter;
+        private boolean isScope;
 
         public ParametersNodeHelper() {
             this.isTuple = false;
@@ -888,6 +923,10 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
 
         public boolean isTuple() {
             return isTuple;
+        }
+
+        public void setScopeParameter(boolean b) {
+            this.isScope = b;
         }
 
         public void setTuple(boolean isTuple) {
@@ -965,7 +1004,6 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
         for (ParameterNode paramNode : graph.getNodes(ParameterNode.TYPE)) {
 
             index++;
-
             if (index == 0) {
                 continue;
             }
@@ -1017,7 +1055,6 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
 
         // First, inspect Truffle scope variables (they normally come from ConstantNode[])
         if (isGeneratingFunction && (isTruffleFrontEnd) && (scopeTruffleList != null) && !scopeTruffleList.isEmpty()) {
-
             int j = 0;
             for (int i = 0; i < scopeTruffleList.size(); i += 2) {
                 int indexVar = nodeHelper.getParamCount();
@@ -1042,10 +1079,14 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
             }
         }
 
+        int counter = 0;
+        int numScopeParameters = this.typeInfoOCL.getOCLScope().length;
+
         // iterate through local nodes to generate parameter list.
         for (ParameterNode paramNode : graph.getNodes(ParameterNode.TYPE)) {
 
             String paramString = paramNode.stamp().toString();
+
             boolean isTuple = paramString.endsWith("a [Ljava/lang/Object;");
             nodeHelper.setTuple(isTuple);
             int paramCount = graph.method().getSignature().getParameterCount(false);
@@ -1055,7 +1096,14 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
             boolean isLamdaArgument = paramNode.index() >= (paramCount - numLambdaArgs);
             nodeHelper.setLambdaArgument(isLamdaArgument);
 
+            // isScope?
+            if (counter < numScopeParameters) {
+                nodeHelper.setScopeParameter(true);
+            }
+            counter++;
+
             String partialSignature = generateParameterForSignature(paramNode, null, null, nodeHelper);
+            nodeHelper.setScopeParameter(false);
 
             if (!isGeneratingFunction && paramNode.index() == 1) {
                 // Add any additional parameters required by the lambda to the signature
@@ -1386,7 +1434,10 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
         kernelSignature = optimizationInline + type + functionName;
         returnTypeFunction = type;
 
-        kernelSignature += generateKernelSignature(graph);
+        kernelSignature += generateKernelParametersSignature(graph);
+
+        System.out.println(" ============================ ");
+        System.out.println(kernelSignature);
 
         String globalAccess = "__global ";
         String localAccess = " ";
@@ -1452,7 +1503,6 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
     }
 
     private void generateLambdaKernel(StructuredGraph graph, LambdaFunctionMetadata oclmetadata, AcceleratorOCLInfo acceleratorOCLInfo) throws RuntimeException {
-        // Debug.dump(graph, "REAL GRAPH INTO THE GPU CODE GEN");
         setupParametersForKernelGeneration(graph, oclmetadata, acceleratorOCLInfo);
         generateTupleStructTypedefs();
 
@@ -1553,7 +1603,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
 
             JavaKind kind = JavaKind.Int;
             if (!srcArrayName.startsWith(JavaKind.Illegal.getJavaName())) {
-                buffer.emitCode("int " + newVar + " = " + srcArrayName + "_index_data[" + srcArrayName + "_dim_" + dim + "]; ");
+                buffer.emitCode("int " + newVar + " = " + srcArrayName + "_index_data[" + srcArrayName + "_dim_" + dim + "];");
             } else {
                 buffer.emitCode("// This is an illegal type for: " + newVar);
                 kind = JavaKind.Illegal;
@@ -2109,7 +2159,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
                     /*
                      * If coming from Ruby with this constant => is a comparison with -1 but from
                      * binary representation.
-                     * 
+                     *
                      * In Ruby: [4607182418800017408].pack('Q').unpack('D') => [1.0]
                      */
                     double s = Double.longBitsToDouble(Long.parseLong(xVar));

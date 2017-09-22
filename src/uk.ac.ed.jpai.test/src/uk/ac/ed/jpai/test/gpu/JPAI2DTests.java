@@ -84,13 +84,18 @@ public class JPAI2DTests extends MarawaccOpenCLTestBase {
         int[] a = new int[size];
 
         ArrayFunction<Integer, Tuple2<Integer, Integer>> compute = new MapAccelerator<>(i -> {
-            int ci = a[i] * 2;
+            int ci = a[i];
             Tuple2<Integer, Integer> r = new Tuple2<>(i, ci);
             return r;
         });
         PArray<Tuple2<Integer, Integer>> output = compute.apply(input);
 
         assertNotNull(output);
+
+        for (int i = 0; i < output.size(); ++i) {
+            assertEquals(i, output.get(i)._1, 0.1);
+            assertEquals(a[i], output.get(i)._2, 0.1);
+        }
 
     }
 }
