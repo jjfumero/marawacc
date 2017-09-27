@@ -1435,9 +1435,6 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
 
         kernelSignature += generateKernelParametersSignature(graph);
 
-        System.out.println(" ============================ ");
-        System.out.println(kernelSignature);
-
         String globalAccess = "__global ";
         String localAccess = " ";
         if (generateExtraArray) {

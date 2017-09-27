@@ -61,13 +61,16 @@ public class HelloMarawacc {
         boolean resultIsCorrect = true;
         boolean testIsCorrect = true;
         for (int j = 0; j < ITERATIONS; j++) {
-            System.out.println("\tRunning iteration : " + j);
+            // System.out.println("\tRunning iteration : " + j);
 
             // For profile all the metrics (OpenCL + Java)
             Profiler.getInstance().print("\nRunning iteration : " + j);
 
             // Execution on the OpenCL device (eg. GPU)
+            long start = System.nanoTime();
             PArray<Double> output = computation.apply(input);
+            long end = System.nanoTime();
+            System.out.println("Total Time (ns): " + (end - start));
 
             // Check result
             resultIsCorrect = true;
