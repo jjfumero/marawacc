@@ -1219,4 +1219,57 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
         }
 
     }
+
+    private static float[] matrixMultiplicationSequential(float[] a, float[] b, int N) {
+        float[] c = new float[N * N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                for (int k = 0; k < N; k++) {
+                    c[i * N + j] += a[i * N + k] * b[k * N + j];
+                }
+            }
+        }
+        return c;
+    }
+
+    @Test
+    public void matrixMultiplication() {
+
+        final int size = 10;
+
+        PArray<Tuple2<Integer, Integer>> input = new PArray<>(size * size, TypeFactory.Tuple("Tuple2<Integer, Integer>"));
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                input.put(i * size + j, new Tuple2<>(i, j));
+            }
+        }
+
+        float[] a = new float[size * size];
+        float[] b = new float[size * size];
+        for (int i = 0; i < size * size; i++) {
+            a[i] = i;
+            b[i] = i;
+        }
+
+        MapAccelerator<Tuple2<Integer, Integer>, Float> function = new MapAccelerator<>(x -> {
+            int indexIDX = x._1();
+            int indexJDX = x._2();
+            float sum = 0.0f;
+            for (int k = 0; k < size; k++) {
+                sum += a[indexIDX * size + k] * b[k * size + indexJDX];
+            }
+            return sum;
+        });
+
+        PArray<Float> result = function.apply(input);
+        assertNotNull(result);
+
+        float[] sequential = matrixMultiplicationSequential(a, b, size);
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                assertEquals(sequential[i * size + j], result.get(i * size + j), 0.001);
+            }
+        }
+    }
+
 }
