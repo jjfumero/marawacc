@@ -1235,7 +1235,7 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
     @Test
     public void matrixMultiplication() {
 
-        final int size = 10;
+        int size = 100;
 
         PArray<Tuple2<Integer, Integer>> input = new PArray<>(size * size, TypeFactory.Tuple("Tuple2<Integer, Integer>"));
         for (int i = 0; i < size; i++) {
