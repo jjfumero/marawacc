@@ -1272,4 +1272,49 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
         }
     }
 
+    private static float[] matrixTransposeSequential(float[] a, int N) {
+        float[] result = new float[N * N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                result[j * N + i] += a[i * N + j];
+            }
+        }
+        return result;
+    }
+
+    @Test
+    public void matrixTranspose() {
+
+        int size = 100;
+
+        PArray<Tuple2<Integer, Integer>> input = new PArray<>(size * size, TypeFactory.Tuple("Tuple2<Integer, Integer>"));
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                input.put(i * size + j, new Tuple2<>(i, j));
+            }
+        }
+
+        float[] a = new float[size * size];
+        for (int i = 0; i < size * size; i++) {
+            a[i] = i;
+        }
+
+        MapAccelerator<Tuple2<Integer, Integer>, Float> function = new MapAccelerator<>(x -> {
+            int indexIDX = x._1();
+            int indexJDX = x._2();
+            int s = size;
+            return a[indexJDX * s + indexIDX];
+        });
+
+        PArray<Float> result = function.apply(input);
+        assertNotNull(result);
+
+        float[] sequential = matrixTransposeSequential(a, size);
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                assertEquals(sequential[i * size + j], result.get(i * size + j), 0.001);
+            }
+        }
+    }
+
 }
