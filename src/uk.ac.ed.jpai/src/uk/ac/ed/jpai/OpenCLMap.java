@@ -82,7 +82,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
     private static int scopeWrites;
     private static int idxKernel;
 
-    private AcceleratorPArray<Integer> deoptFlag;
+    private AcceleratorPArray<Integer> deoptBufferFlag;
 
     private ArrayList<ScalarVarInfo> scalarVariableList = new ArrayList<>();
 
@@ -106,12 +106,16 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         }
     }
 
-    private void writeScopeVars(int writeIndex) {
-
+    private static int getNumberOfCurrentDevices() {
         int numDevices = 1;
         if (GraalAcceleratorOptions.multiOpenCLDevice) {
             numDevices = GraalAcceleratorSystem.getInstance().getPlatform().getNumCurrentCurrentDevices();
         }
+        return numDevices;
+    }
+
+    private void writeScopeVars(int writeIndex) {
+        int numDevices = getNumberOfCurrentDevices();
         for (int i = 0; i < numDevices; i++) {
             cl_command_queue queue = getOpenCLDevice(i).getCommandQueue();
             writeIntoBuffer(i, writeIndex, queue, scopeVarList.get(i), scopedVariableBuffers.get(i));
@@ -172,14 +176,14 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             }
         }
 
-        if (GraalAcceleratorOptions.deoptGuardsEnabled && deoptFlag == null) {
-            deoptFlag = new AcceleratorPArray<>(1, TypeFactory.Integer(), StorageMode.OPENCL_BYTE_BUFFER, false);
+        if (GraalAcceleratorOptions.deoptGuardsEnabled && deoptBufferFlag == null) {
+            deoptBufferFlag = new AcceleratorPArray<>(1, TypeFactory.Integer(), StorageMode.OPENCL_BYTE_BUFFER, false);
         }
 
         ((AcceleratorPArray<outT>) output).allocateOpenCLBuffer(CL.CL_MEM_WRITE_ONLY);
         ((AcceleratorPArray<outT>) output).copyMetaDataToDevice(idxWrite++);
 
-        deoptFlag.allocateOpenCLBuffer(CL.CL_MEM_WRITE_ONLY);
+        deoptBufferFlag.allocateOpenCLBuffer(CL.CL_MEM_WRITE_ONLY);
 
         if ((GraalAcceleratorOptions.debugCacheGPUCode) && (OCLKernelCache.getInstance().isInCache(uuidKernel))) {
             System.out.println("[DEBUG] Kernel in Cache: " + uuidKernel);
@@ -237,8 +241,6 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
     @Override
     public AcceleratorPArray<outT> allocateOutputArray(int size, StorageMode mode) {
-        // this output array has no Java array to store the data ...
-        // ... the eventually following CopyToHost will add this
         return new AcceleratorPArray<>(size, outputType, mode, true);
     }
 
@@ -250,8 +252,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
     private static void checkStatus(int status, String message) {
         if (status != CL.CL_SUCCESS) {
             System.err.println("[OPENCL ERROR] : " + message);
-            // Abort application
-            System.exit(0);
+            throw new RuntimeException("[OPENCL ERROR] : " + message);
         }
     }
 
@@ -287,8 +288,8 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             argumentNumber++;
         }
 
-        if (GraalAcceleratorOptions.deoptGuardsEnabled && deoptFlag != null) {
-            cl_mem bufferDeopt = deoptFlag.getOpenCLBuffersWithMetadata(deviceIndex).get(0);
+        if (GraalAcceleratorOptions.deoptGuardsEnabled && deoptBufferFlag != null) {
+            cl_mem bufferDeopt = deoptBufferFlag.getOpenCLBuffersWithMetadata(deviceIndex).get(0);
             status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_mem, Pointer.to(bufferDeopt));
             argumentNumber++;
         }
@@ -361,12 +362,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
     }
 
     private void executeOpenCLKernel(AcceleratorPArray<inT> input, ArrayList<ArrayList<cl_mem>> scope, AcceleratorPArray<outT> outputLocal) {
-
-        int numKernels = 1;
-        if (GraalAcceleratorOptions.multiOpenCLDevice) {
-            numKernels = GraalAcceleratorSystem.getInstance().getPlatform().getNumCurrentCurrentDevices();
-        }
-
+        int numKernels = getNumberOfCurrentDevices();
         for (int i = 0; i < numKernels; i++) {
             cl_kernel kernel = OCLKernelCache.getInstance().get(uuidKernel, i).getKernelBinary();
             executeKernelIntoDevice(i, kernel, input, scope, outputLocal);
@@ -619,8 +615,8 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
     private static class ScalarVarInfo {
 
-        protected int openCLSize;
-        protected Object value;
+        private int openCLSize;
+        private Object value;
 
         public ScalarVarInfo(Object value, int openCLSize) {
             this.value = value;
@@ -718,10 +714,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             throw new RuntimeException("Upload of scoped variables failed: " + e.getMessage());
         }
 
-        int numDevices = 1;
-        if (GraalAcceleratorOptions.multiOpenCLDevice) {
-            numDevices = GraalAcceleratorSystem.getInstance().getPlatform().getNumCurrentCurrentDevices();
-        }
+        int numDevices = getNumberOfCurrentDevices();
         if (parametersFromTheScope.length > 0) {
             initLists(numDevices);
         }
