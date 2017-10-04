@@ -50,8 +50,8 @@ public class BlurTransformation {
 
         private BufferedImage image;
 
-        public static final boolean PARALLEL_COMPUTATION = false;
-        public static final int FILTER_WIDTH = 101;
+        public static final boolean PARALLEL_COMPUTATION = true;
+        public static final int FILTER_WIDTH = 21;
 
         public BlurFilterImage() {
             loadImage();

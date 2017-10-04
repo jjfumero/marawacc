@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.UUID;
@@ -256,7 +257,8 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         }
     }
 
-    private void setArguments(cl_kernel kernel, int deviceIndex, AcceleratorPArray<inT> in, ArrayList<cl_mem> scopedVariableBuffers, ArrayList<ScalarVarInfo> scopeScalarVariables, AcceleratorPArray<outT> out) {
+    private void setArguments(cl_kernel kernel, int deviceIndex, AcceleratorPArray<inT> in, ArrayList<ArrayList<cl_mem>> scope, ArrayList<ScalarVarInfo> scopeScalarVariables,
+                    AcceleratorPArray<outT> out) {
         // set arguments
         int argumentNumber = 0;
         int status = 0;
@@ -265,38 +267,93 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             argumentNumber++;
         }
 
+        ArrayList<cl_mem> scopedVarBuffers = (scope.isEmpty() ? null : scope.get(deviceIndex));
+
+        // Build index arrays
+        int base = argumentNumber;
+
+        // build array addresses
+        int s = scopedVarBuffers == null ? 0 : (scopedVarBuffers.size() / 2);
+        int size = s + scopeScalarVariables.size();
+        int[] address = new int[size];
+        final int INIT_VALUE = -1;
+        // Initialisation
+        Arrays.fill(address, INIT_VALUE);
+
         if ((scopeScalarVariables != null) && (!scopeScalarVariables.isEmpty())) {
             for (ScalarVarInfo scalar : scopeScalarVariables) {
+                int index = scalar.getIndexVar();
+                address[index] = base + index;
+            }
+        }
+
+        if (scopedVarBuffers != null) {
+            int accumulator = 0;
+            for (int i = 0; i < address.length; i++) {
+                if (address[i] == INIT_VALUE) {
+                    address[i] = base + i + accumulator;
+                    accumulator++;
+                } else {
+                    address[i] += accumulator;
+                }
+            }
+        }
+
+        boolean[] scalars = new boolean[size];
+        if ((scopeScalarVariables != null) && (!scopeScalarVariables.isEmpty())) {
+            for (ScalarVarInfo scalar : scopeScalarVariables) {
+                int addr = address[scalar.getIndexVar()];
                 if (scalar.getOpenCLSize() == Sizeof.cl_int) {
-                    status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_int, Pointer.to(new int[]{(int) scalar.getValue()}));
-                    argumentNumber++;
+                    status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_int, Pointer.to(new int[]{(int) scalar.getValue()}));
+                    scalars[scalar.getIndexVar()] = true;
                 } else if (scalar.getOpenCLSize() == Sizeof.cl_float) {
-                    status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_float, Pointer.to(new float[]{(float) scalar.getValue()}));
-                    argumentNumber++;
+                    status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_float, Pointer.to(new float[]{(float) scalar.getValue()}));
+                    scalars[scalar.getIndexVar()] = true;
                 } else if (scalar.getOpenCLSize() == Sizeof.cl_double) {
-                    status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_double, Pointer.to(new double[]{(double) scalar.getValue()}));
-                    argumentNumber++;
+                    status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_double, Pointer.to(new double[]{(double) scalar.getValue()}));
+                    scalars[scalar.getIndexVar()] = true;
                 } else if (scalar.getOpenCLSize() == Sizeof.cl_long) {
-                    status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_long, Pointer.to(new long[]{(long) scalar.getValue()}));
-                    argumentNumber++;
+                    status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_long, Pointer.to(new long[]{(long) scalar.getValue()}));
+                    scalars[scalar.getIndexVar()] = true;
                 } else if (scalar.getOpenCLSize() == Sizeof.cl_short) {
-                    status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_short, Pointer.to(new short[]{(short) scalar.getValue()}));
-                    argumentNumber++;
+                    status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_short, Pointer.to(new short[]{(short) scalar.getValue()}));
+                    scalars[scalar.getIndexVar()] = true;
+                } else if (scalar.getOpenCLSize() == Sizeof.cl_char) {
+                    status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_char, Pointer.to(new char[]{(char) scalar.getValue()}));
+                    scalars[scalar.getIndexVar()] = true;
                 } else {
                     throw new RuntimeException("Data type not supported yet [scope clSetKernelArg");
                 }
             }
         }
 
-        if (scopedVariableBuffers != null) {
-            for (cl_mem scopedBuffer : scopedVariableBuffers) {
-                status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_mem, Pointer.to(scopedBuffer));
-                argumentNumber++;
+        if (scopedVarBuffers != null) {
+            int j = 0;
+            int addr = argumentNumber - 1;
+            for (int i = 0; i < scopedVarBuffers.size(); i += 2) {
+                if (j < scalars.length) {
+                    while (scalars[j] == true && j < scalars.length) {
+                        j++;
+                    }
+                    addr = address[j];
+                    j++;
+                } else {
+                    addr++;
+                }
+
+                cl_mem scopedBuffer = scopedVarBuffers.get(i);
+                status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_mem, Pointer.to(scopedBuffer));
+                scopedBuffer = scopedVarBuffers.get(i + 1);
+                addr++;
+                status |= CL.clSetKernelArg(kernel, addr, Sizeof.cl_mem, Pointer.to(scopedBuffer));
             }
         }
-        for (
 
-        cl_mem outputBuffer : out.getOpenCLBuffersWithMetadata(deviceIndex)) {
+        s = scopedVarBuffers == null ? 0 : (scopedVarBuffers.size());
+        size = s + scopeScalarVariables.size();
+        argumentNumber += size;
+
+        for (cl_mem outputBuffer : out.getOpenCLBuffersWithMetadata(deviceIndex)) {
             status |= CL.clSetKernelArg(kernel, argumentNumber, Sizeof.cl_mem, Pointer.to(outputBuffer));
             argumentNumber++;
         }
@@ -332,11 +389,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
     private void executeKernelIntoDevice(int deviceIndex, cl_kernel kernel, AcceleratorPArray<inT> input, ArrayList<ArrayList<cl_mem>> scope, AcceleratorPArray<outT> outputLocal) {
 
-        if (!scope.isEmpty()) {
-            setArguments(kernel, deviceIndex, input, scope.get(deviceIndex), scalarVariableList, outputLocal);
-        } else {
-            setArguments(kernel, deviceIndex, input, null, null, outputLocal);
-        }
+        setArguments(kernel, deviceIndex, input, scope, scalarVariableList, outputLocal);
 
         long size = input.isSequence() ? input.getTotalSizeWhenSequence() : input.size();
         if (GraalAcceleratorOptions.multiOpenCLDevice) {
@@ -630,18 +683,24 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
 
         private int openCLSize;
         private Object value;
+        private int indexVar;
 
-        public ScalarVarInfo(Object value, int openCLSize) {
+        public ScalarVarInfo(Object value, int openCLSize, int indexVar) {
             this.value = value;
             this.openCLSize = openCLSize;
+            this.indexVar = indexVar;
         }
 
         public int getOpenCLSize() {
-            return this.openCLSize;
+            return openCLSize;
         }
 
         public Object getValue() {
-            return this.value;
+            return value;
+        }
+
+        public int getIndexVar() {
+            return indexVar;
         }
 
     }
@@ -737,26 +796,27 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             initLists(numDevices);
         }
 
+        int indexVar = 0;
         for (Object scopeVariable : parametersFromTheScope) {
             if (scopeVariable.getClass().isArray()) {
-                System.out.println("SCOPE: " + scopeVariable);
                 createPinnedMemoryForJavaArray(scopeVariable, numDevices);
+                indexVar++;
             } else if (scopeVariable.getClass() == Integer.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_int));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_int, indexVar++));
             } else if (scopeVariable.getClass() == Long.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_long));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_long, indexVar++));
             } else if (scopeVariable.getClass() == Double.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_double));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_double, indexVar++));
             } else if (scopeVariable.getClass() == Float.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_float));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_float, indexVar++));
             } else if (scopeVariable.getClass() == Short.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_short));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_short, indexVar++));
             } else if (scopeVariable.getClass() == Byte.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_char));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_char, indexVar++));
             } else if (scopeVariable.getClass() == Character.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_char));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_char, indexVar++));
             } else if (scopeVariable.getClass() == Boolean.class) {
-                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_char));
+                scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_char, indexVar++));
             } else {
                 throw new UnsupportedOperationException("Scope var not supported. Only supported arrays.");
             }

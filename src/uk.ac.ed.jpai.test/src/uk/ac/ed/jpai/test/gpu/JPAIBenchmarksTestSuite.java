@@ -1302,8 +1302,7 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
         MapAccelerator<Tuple2<Integer, Integer>, Float> function = new MapAccelerator<>(x -> {
             int indexIDX = x._1();
             int indexJDX = x._2();
-            int s = size;
-            return a[indexJDX * s + indexIDX];
+            return a[indexJDX * size + indexIDX];
         });
 
         PArray<Float> result = function.apply(input);
