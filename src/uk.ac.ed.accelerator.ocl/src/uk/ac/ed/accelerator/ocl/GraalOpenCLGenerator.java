@@ -1095,7 +1095,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
             nodeHelper.setLambdaArgument(isLamdaArgument);
 
             // isScope?
-            if (counter < numScopeParameters) {
+            if (!isTruffleFrontEnd() && counter < numScopeParameters) {
                 nodeHelper.setScopeParameter(true);
             }
             counter++;
