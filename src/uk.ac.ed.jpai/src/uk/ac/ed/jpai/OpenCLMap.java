@@ -272,7 +272,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         // Build index arrays
         int base = argumentNumber;
 
-        // build array addresses
+        // build array of addresses
         int s = scopedVarBuffers == null ? 0 : (scopedVarBuffers.size() / 2);
         int size = s + scopeScalarVariables.size();
         int[] address = new int[size];
@@ -299,6 +299,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             }
         }
 
+        // Set scalar variables to the kernel
         boolean[] scalars = new boolean[size];
         if ((scopeScalarVariables != null) && (!scopeScalarVariables.isEmpty())) {
             for (ScalarVarInfo scalar : scopeScalarVariables) {
@@ -327,6 +328,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             }
         }
 
+        // Set array buffers scope variables to the OpenCL kernel
         if (scopedVarBuffers != null) {
             int j = 0;
             int addr = argumentNumber - 1;
@@ -818,7 +820,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
             } else if (scopeVariable.getClass() == Boolean.class) {
                 scalarVariableList.add(new ScalarVarInfo(scopeVariable, Sizeof.cl_char, indexVar++));
             } else {
-                throw new UnsupportedOperationException("Scope var not supported. Only supported arrays.");
+                throw new UnsupportedOperationException("Scope var not supported. Only supported arrays." + scopeVariable.getClass());
             }
         }
     }

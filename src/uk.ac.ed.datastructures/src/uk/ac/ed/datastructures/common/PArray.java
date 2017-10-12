@@ -1030,7 +1030,8 @@ public class PArray<T> {
         /**
          * @see <a href=
          *      "http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double">
-         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double </a>
+         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double
+         *      </a>
          *
          * @return float[]
          */
@@ -1106,7 +1107,8 @@ public class PArray<T> {
         /**
          * @see <a href=
          *      "http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double">
-         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double </a>
+         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double
+         *      </a>
          *
          * @return double[]
          */
@@ -1160,7 +1162,8 @@ public class PArray<T> {
         /**
          * @see <a href=
          *      "http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double">
-         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double </a>
+         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double
+         *      </a>
          *
          * @return int[]
          */
@@ -1238,7 +1241,8 @@ public class PArray<T> {
         /**
          * @see <a href=
          *      "http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double">
-         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double </a>
+         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double
+         *      </a>
          *
          * @return long[]
          */
@@ -1314,7 +1318,8 @@ public class PArray<T> {
         /**
          * @see <a href=
          *      "http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double">
-         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double </a>
+         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double
+         *      </a>
          *
          * @return char[]
          */
@@ -1386,7 +1391,8 @@ public class PArray<T> {
         /**
          * @see <a href=
          *      "http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double">
-         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double </a>
+         *      http://stackoverflow.com/questions/12228152/java-convert-direct-bytebuffer-to-double
+         *      </a>
          *
          * @return short[]
          */
