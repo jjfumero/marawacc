@@ -15,12 +15,13 @@ public class SampleGraalIR {
 
     // Test method to compile.
     public static int methodToCompile(int n) {
+        int x = n;
         if (n < 3) {
-            n++;
+            x++;
         } else {
-            n += 2;
+            x += 2;
         }
-        return n;
+        return x;
     }
 
     // Test method to compile.

@@ -56,12 +56,10 @@ public class JPAICompileFunctionThread<inT, outT> extends Thread {
 
     @Override
     public void run() {
-        // System.out.println("COMPILING............");
         JITGraalCompilerUtil compiler = new JITGraalCompilerUtil();
         ResolvedJavaMethod resolvedJavaMethodForUserFunction = GraalIRConversion.getResolvedJavaMethodForUserFunction(function.getClass());
         this.compiledCode = compiler.compile(resolvedJavaMethodForUserFunction);
         compilationFinished = true;
-        // System.out.println("COMPILATION FINISHED");
     }
 
 }

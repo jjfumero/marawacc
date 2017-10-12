@@ -37,7 +37,6 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
-import uk.ac.ed.accelerator.ocl.ParallelOptions;
 import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType;
 import uk.ac.ed.accelerator.ocl.runtime.AcceleratorType.DataType;
 
