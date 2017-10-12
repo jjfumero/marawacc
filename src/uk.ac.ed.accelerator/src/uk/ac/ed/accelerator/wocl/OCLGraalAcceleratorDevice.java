@@ -516,7 +516,7 @@ public class OCLGraalAcceleratorDevice extends GraalAcceleratorDevice {
         ArrayList<cl_event> readEvents = new ArrayList<>();
         int i = 0;
         for (OCLGraalAcceleratorVar oclVariable : params) {
-            if (oclVariable.getDirection() == GraalOCLConstants.COPY_OUT) {
+            if (oclVariable.getDirection() == OpenCLVariableFlag.COPY_OUT) {
                 long start = System.nanoTime();
                 PipelineTimeDescritor.getInstance().put(Stage.C_FINE_START_CALL_TO_READ, start);
                 cl_event event = oclVariable.readParameterByJavaThread(pointers[i], eventKernel, fromTo, memObjects[i]);

@@ -28,7 +28,6 @@ public class MetaData {
     private cl_mem mem;
 
     public MetaData(cl_event event, cl_mem mem) {
-        super();
         this.event = event;
         this.mem = mem;
     }
