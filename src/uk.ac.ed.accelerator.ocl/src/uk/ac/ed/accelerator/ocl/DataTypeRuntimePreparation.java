@@ -39,7 +39,7 @@ import uk.ac.ed.accelerator.profiler.Profiler;
 import uk.ac.ed.accelerator.profiler.ProfilerType;
 import uk.ac.ed.accelerator.utils.ArrayPackage;
 import uk.ac.ed.accelerator.utils.PipelineIndexInfo;
-import uk.ac.ed.accelerator.wocl.GraalOCLConstants;
+import uk.ac.ed.accelerator.wocl.GraalOpenCLConstants;
 import uk.ac.ed.datastructures.common.PArray;
 import uk.ac.ed.datastructures.common.RuntimeObjectTypeInfo;
 
@@ -376,7 +376,7 @@ public class DataTypeRuntimePreparation {
             isPrimitive[i] = info.getIs1D()[i];
             sizes[i] = info.getSizes()[i];
             flatten[i] = info.getFlatten()[i];
-            direction[i] = GraalOCLConstants.COPY_IN;
+            direction[i] = GraalOpenCLConstants.COPY_IN;
         }
 
         start = System.nanoTime();
@@ -403,7 +403,7 @@ public class DataTypeRuntimePreparation {
             sizes[idx] = outputSize[0];
             isPrimitive[idx] = is1DOut[0];
             flatten[idx] = isOutFlatten[0];
-            direction[idx] = GraalOCLConstants.COPY_OUT;
+            direction[idx] = GraalOpenCLConstants.COPY_OUT;
             outputIndex = idx;
             idx++;
         }
@@ -417,7 +417,7 @@ public class DataTypeRuntimePreparation {
                 finalParameters[idx] = o;
                 sizes[idx] = infoUnroll.sizes[i];
                 isPrimitive[idx] = false;
-                direction[idx] = GraalOCLConstants.COPY_OUT;
+                direction[idx] = GraalOpenCLConstants.COPY_OUT;
                 flatten[idx] = true;
                 idx++;
                 i++;

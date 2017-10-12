@@ -67,17 +67,17 @@ public class Hello {
 * PArray<T>: Portable Array (PArray) is a data structure created for avoiding the data transformation between Java and OpenCL (marshalling) and increase the overall performance. Details of the PArray data structure in [1].
 
 
-### Publications 
+# Publications 
 
-[1] Juan José Fumero, Toomas Remmelg, Michel Steuwer, and Christophe Dubach. 2015. **Runtime Code Generation and Data Management for Heterogeneous Computing in Java.** In Proceedings of the Principles and Practices of Programming on The Java Platform (PPPJ '15). ACM, New York, NY, USA, 16-26. DOI: http://dx.doi.org/10.1145/2807426.2807428 
+  [1] Juan José Fumero, Toomas Remmelg, Michel Steuwer, and Christophe Dubach. 2015. **Runtime Code Generation and Data Management for Heterogeneous Computing in Java.** In Proceedings of the Principles and Practices of Programming on The Java Platform (PPPJ '15). ACM, New York, NY, USA, 16-26. DOI: http://dx.doi.org/10.1145/2807426.2807428 
 
-[2] Juan José Fumero, Michel Steuwer, and Christophe Dubach. 2014. **A Composable Array Function Interface for Heterogeneous Computing in Java.** In Proceedings of ACM SIGPLAN International Workshop on Libraries, Languages, and Compilers for Array Programming (ARRAY'14). ACM, New York, NY, USA, Pages 44, 6 pages. DOI=http://dx.doi.org/10.1145/2627373.2627381
+  [2] Juan José Fumero, Michel Steuwer, and Christophe Dubach. 2014. **A Composable Array Function Interface for Heterogeneous Computing in Java.** In Proceedings of ACM SIGPLAN International Workshop on Libraries, Languages, and Compilers for Array Programming (ARRAY'14). ACM, New York, NY, USA, Pages 44, 6 pages. DOI=http://dx.doi.org/10.1145/2627373.2627381
 
-Marawacc is used as a backend for FastR+GPU project (OpenCL JIT compilation for the R programs using Partial Evaluation in Graal)
+*Marawacc is used as a backend for FastR+GPU project (OpenCL JIT compilation for the R programs using Partial Evaluation in Graal)*
 
-[3] Juan Fumero, Michel Steuwer, Lukas Stadler, and Christophe Dubach. 2017. **Just-In-Time GPU Compilation for Interpreted Languages with Partial Evaluation.** In Proceedings of the 13th ACM SIGPLAN/SIGOPS International Conference on Virtual Execution Environments (VEE '17). ACM, New York, NY, USA, 60-73. DOI: https://doi.org/10.1145/3050748.3050761 
-
-[4] Juan Fumero, Michel Steuwer, Lukas Stadler, Christophe Dubach. ** OpenCL JIT Compilation for Dynamic Programming Language.** MoreVMs 2017. [http://conf.researchr.org/event/MoreVMs-2017/morevms-2017-papers-opencl-jit-compilation-for-dynamic-programming-languages](http://conf.researchr.org/event/MoreVMs-2017/morevms-2017-papers-opencl-jit-compilation-for-dynamic-programming-languages)
+  [3] Juan Fumero, Michel Steuwer, Lukas Stadler, and Christophe Dubach. 2017. **Just-In-Time GPU Compilation for Interpreted Languages with Partial Evaluation.** In Proceedings of the 13th ACM SIGPLAN/SIGOPS International Conference on Virtual Execution Environments (VEE '17). ACM, New York, NY, USA, 60-73. DOI: https://doi.org/10.1145/3050748.3050761
+ 
+  [4] Juan Fumero, Michel Steuwer, Lukas Stadler, Christophe Dubach. **OpenCL JIT Compilation for Dynamic Programming Language.** MoreVMs 2017. [http://conf.researchr.org/event/MoreVMs-2017/morevms-2017-papers-opencl-jit-compilation-for-dynamic-programming-languages](http://conf.researchr.org/event/MoreVMs-2017/morevms-2017-papers-opencl-jit-compilation-for-dynamic-programming-languages)
 
 
 ### License ###

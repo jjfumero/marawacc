@@ -156,7 +156,7 @@ public class OCLGraalAcceleratorVar extends GraalAcceleratorVar {
             throw new RuntimeException("[Context is null]");
         }
 
-        if (this.direction == GraalOCLConstants.COPY_IN) {
+        if (this.direction == GraalOpenCLConstants.COPY_IN) {
             cl_event writeEvent = new cl_event();
             boolean block = (GraalAcceleratorOptions.offloadSync == true) ? CL.CL_TRUE : CL.CL_FALSE;
             int fromHotsOffset = (this.extraArray) ? 0 : fromTo[0];
@@ -186,7 +186,7 @@ public class OCLGraalAcceleratorVar extends GraalAcceleratorVar {
             throw new Exception("Queue variable is null");
         }
 
-        if (!this.isReadOnly() && (this.direction == GraalOCLConstants.COPY_OUT)) {
+        if (!this.isReadOnly() && (this.direction == GraalOpenCLConstants.COPY_OUT)) {
             cl_event eventReader = new cl_event();
             cl_event[] eventKernel = (cl_event[]) kernelEventObject;
             cl_mem pipelineMem = (cl_mem) pipelineMemObject;

@@ -20,8 +20,8 @@
 
 package uk.ac.ed.accelerator.wocl;
 
-public interface GraalOCLConstants {
-    int COPY_IN = 1;
-    int COPY_OUT = 2;
-    boolean READOLY = true;
+public class GraalOpenCLConstants {
+    public static final int COPY_IN = 1;
+    public static final int COPY_OUT = 2;
+    public static final boolean READONLY = true;
 }
