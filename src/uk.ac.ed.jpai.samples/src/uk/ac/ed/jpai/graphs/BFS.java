@@ -28,31 +28,45 @@ import uk.ac.ed.datastructures.tuples.Tuple2;
 import uk.ac.ed.datastructures.tuples.Tuple5;
 import uk.ac.ed.jpai.MapAccelerator;
 
+/**
+ * Bread First Search algorithm solved with JPAI and Marawacc. The graph computation is performed on
+ * the GPU via OpenCL when Marawacc detects an available GPU.
+ *
+ * BFS parallel algorithm adapted from: classroom.udacity.com/courses/cs344/
+ *
+ */
 public class BFS {
 
     public static void connect(int from, int to, int[] graph, int N) {
         graph[from * N + to] = 1;
     }
 
-    public static void jpaiBFS(int root) {
-        int nodes = 5;
-        int numNodes = 5;
+    /**
+     * It builds a simple graph just for showing the example.
+     *
+     * @param adjacencyMatrix
+     * @param numNodes
+     */
+    public static void initilizeAdjacencyMatrixSimpleGraph(int[] adjacencyMatrix, int numNodes) {
+        Arrays.fill(adjacencyMatrix, 0);
+        connect(0, 1, adjacencyMatrix, numNodes);
+        connect(0, 4, adjacencyMatrix, numNodes);
+        connect(1, 2, adjacencyMatrix, numNodes);
+        connect(2, 3, adjacencyMatrix, numNodes);
+        connect(2, 4, adjacencyMatrix, numNodes);
+        connect(3, 4, adjacencyMatrix, numNodes);
+    }
+
+    public static void jpaiBFS(int root, int numberOfNodes) {
+
+        int numNodes = numberOfNodes;
 
         int[] vertices = new int[numNodes];
+        int[] adjacencyMatrix = new int[numNodes * numNodes];
 
-        int[] adjacencyMatrix;
+        initilizeAdjacencyMatrixSimpleGraph(adjacencyMatrix, numNodes);
 
-        adjacencyMatrix = new int[nodes * nodes];
-        Arrays.fill(adjacencyMatrix, 0);
-
-        connect(0, 1, adjacencyMatrix, nodes);
-        connect(0, 4, adjacencyMatrix, nodes);
-        connect(1, 2, adjacencyMatrix, nodes);
-        connect(2, 3, adjacencyMatrix, nodes);
-        connect(2, 4, adjacencyMatrix, nodes);
-        connect(3, 4, adjacencyMatrix, nodes);
-
-        // first kernel: initialization
+        // Step 1: vertices initialisation
         for (int i = 0; i < numNodes; i++) {
             if (i == root) {
                 vertices[i] = 0;
@@ -71,7 +85,7 @@ public class BFS {
         boolean done = false;
         int current = -1;
 
-        // Second kernel, computation
+        // Step 2: kernel computation
         while (!done) {
 
             current++;
@@ -111,7 +125,7 @@ public class BFS {
 
             PArray<Tuple5<Integer, Integer, Integer, Integer, Short>> output = function.apply(input);
 
-            // update vertices info
+            // Step 3: update vertices info
             for (int i = 0; i < numNodes; i++) {
                 for (int j = 0; j < numNodes; j++) {
                     if (output.get(i * numNodes + j)._1 != -1) {
@@ -127,7 +141,7 @@ public class BFS {
 
             System.out.println("Partial Solution: " + Arrays.toString(vertices));
 
-            // Update vertices
+            // Check if there is no updated
             boolean check = true;
             for (int i = 0; i < numNodes * numNodes; i++) {
                 if (output.get(i)._5 == 0) {
@@ -139,12 +153,10 @@ public class BFS {
                 done = true;
             }
         }
-
         System.out.println("Solution: " + Arrays.toString(vertices));
-
     }
 
     public static void main(String[] args) {
-        jpaiBFS(0);
+        jpaiBFS(0, 5);
     }
 }
