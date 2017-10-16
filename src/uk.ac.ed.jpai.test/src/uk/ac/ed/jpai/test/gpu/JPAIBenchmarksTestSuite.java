@@ -1276,7 +1276,7 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
         float[] result = new float[N * N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                result[j * N + i] += a[i * N + j];
+                result[j * N + i] = a[i * N + j];
             }
         }
         return result;
