@@ -22,5 +22,4 @@ mx $vm \
 	-Dmarawacc.printOCLInfo=true \
 	-Xbootclasspath/p:graal.jar \
 	-cp @uk.ac.ed.jpai.samples \
-	uk.ac.ed.jpai.samples.images.BWConversion
-
+	uk.ac.ed.jpai.samples.images.BlackAndWhiteConversion
