@@ -1159,7 +1159,7 @@ public class GraalOpenCLGenerator extends AbstractOpenCLGenerator {
                 } else if (constant.getStackKind() == JavaKind.Long) {
                     symbolTable.add("" + constant.asJavaConstant().asLong(), constant, JavaKind.Long);
                 } else if (constant.getStackKind() == JavaKind.Float) {
-                    symbolTable.add("" + constant.asJavaConstant().asFloat(), constant, JavaKind.Float);
+                    symbolTable.add("" + constant.asJavaConstant().asFloat() + "f", constant, JavaKind.Float);
                 } else if (constant.getStackKind() == JavaKind.Double) {
                     if (constant.getValue().toValueString().equals("NaN")) {
                         ConstantNode c = ConstantNode.forDouble(0x7ff00000000007a2L);
