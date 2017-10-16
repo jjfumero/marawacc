@@ -104,11 +104,11 @@ public class BFS {
                 int idx = x._1();
                 int jdx = x._2();
                 short h_true = 1;
-                int access = idx * numNodes + jdx;
+                int elementAccess = idx * numNodes + jdx;
                 int vx = -1;
                 int vy = -1;
 
-                if (adjacencyMatrix[access] == 1) {
+                if (adjacencyMatrix[elementAccess] == 1) {
                     int dfirst = vertices[idx];
                     int dsecond = vertices[jdx];
                     if ((currentNode == dfirst) && (dsecond == -1)) {
