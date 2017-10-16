@@ -37,6 +37,14 @@ import uk.ac.ed.jpai.MapAccelerator;
  */
 public class BFS {
 
+    /**
+     * Set to one the connection between node from and node to into the adjacency matrix.
+     *
+     * @param from
+     * @param to
+     * @param graph
+     * @param N
+     */
     public static void connect(int from, int to, int[] graph, int N) {
         graph[from * N + to] = 1;
     }
@@ -91,7 +99,7 @@ public class BFS {
             current++;
             int currentNode = current;
 
-            MapAccelerator<Tuple2<Integer, Integer>, Tuple5<Integer, Integer, Integer, Integer, Short>> function = new MapAccelerator<>(x -> {
+            MapAccelerator<Tuple2<Integer, Integer>, Tuple5<Integer, Integer, Integer, Integer, Short>> bfsParallelFunction = new MapAccelerator<>(x -> {
 
                 int idx = x._1();
                 int jdx = x._2();
@@ -123,7 +131,7 @@ public class BFS {
                 return t;
             });
 
-            PArray<Tuple5<Integer, Integer, Integer, Integer, Short>> output = function.apply(input);
+            PArray<Tuple5<Integer, Integer, Integer, Integer, Short>> output = bfsParallelFunction.apply(input);
 
             // Step 3: update vertices info
             for (int i = 0; i < numNodes; i++) {
