@@ -32,7 +32,7 @@ import uk.ac.ed.jpai.ArrayFunction;
 import uk.ac.ed.jpai.MapAccelerator;
 import uk.ac.ed.jpai.test.base.MarawaccOpenCLTestBase;
 
-public class TestForGPU extends MarawaccOpenCLTestBase {
+public class TesGPUForLoop extends MarawaccOpenCLTestBase {
 
     @Test
     public void testFor01() {
