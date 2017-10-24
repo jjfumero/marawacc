@@ -104,9 +104,45 @@ public final class OpenCLDevices {
         return platforms;
     }
 
+    private static class MetaInfoDevice {
+        private cl_platform_id platform;
+        private cl_device_id[] devices;
+        private int numDevices;
+        private OCLVendor platformType;
+
+        public MetaInfoDevice(cl_platform_id platform, cl_device_id[] devices, int numDevices, OCLVendor platformType) {
+            super();
+            this.platform = platform;
+            this.devices = devices;
+            this.numDevices = numDevices;
+            this.platformType = platformType;
+        }
+
+        public cl_platform_id getPlatform() {
+            return platform;
+        }
+
+        public cl_device_id[] getDevices() {
+            return devices;
+        }
+
+        public int getNumDevices() {
+            return numDevices;
+        }
+
+        public OCLVendor getPlatformType() {
+            return platformType;
+        }
+
+    }
+
     private void initializeMultidevice() {
 
         cl_platform_id[] platforms = getPlatforms();
+
+        ArrayList<MetaInfoDevice> meta = new ArrayList<>();
+
+        int gpuCounter = 0;
 
         for (int i = 0; i < platforms.length; i++) {
 
@@ -128,15 +164,18 @@ public final class OpenCLDevices {
 
             try {
                 CL.clGetDeviceIDs(platform, CL.CL_DEVICE_TYPE_GPU, numGPUDevices, devices, null);
+                gpuCounter += numGPUDevices;
+                meta.add(new MetaInfoDevice(platform, devices, numGPUDevices, platformType));
             } catch (CLException e) {
-                System.out.println("ERROR GPU #2 ");
+                System.out.println("ERROR: There is GPU ");
                 continue;
             }
+        }
 
-            if (numGPUDevices > 1) {
-                setMultiDeviceList(numGPUDevices, devices, platform, platformType);
+        if (gpuCounter > 1) {
+            for (MetaInfoDevice m : meta) {
+                setMultiDeviceList(m.getNumDevices(), m.getDevices(), m.getPlatform(), m.getPlatformType());
             }
-
         }
     }
 
@@ -200,6 +239,7 @@ public final class OpenCLDevices {
     private void initializeAllPlatforms() {
         this.numDevices = 0;
 
+        // get a list of all OpenCL Platforms
         cl_platform_id[] platforms = getPlatforms();
 
         for (cl_platform_id platform : platforms) {
@@ -221,7 +261,9 @@ public final class OpenCLDevices {
             initializeMultidevice();
         }
 
-        System.out.println("Init all platforms");
+        if (GraalAcceleratorOptions.printOCLInfo) {
+            System.out.println("Init all platforms");
+        }
 
         initializeAllPlatforms();
 

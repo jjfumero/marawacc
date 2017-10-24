@@ -49,7 +49,6 @@ public final class GraalAcceleratorSystem {
         initializating = true;
 
         if (GraalAcceleratorOptions.printOCLInfo) {
-            // LoggerMarawacc.info("Platform Initialization ....... ");
             System.out.println("[OCL GRAAL] Initializating platform .... ");
         }
 
