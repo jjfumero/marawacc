@@ -19,18 +19,15 @@
  */
 package uk.ac.ed.accelerator.ocl.tier;
 
-import jdk.vm.ci.meta.MetaAccessProvider;
-import uk.ac.ed.accelerator.math.ocl.OCLMath;
-import uk.ac.ed.compiler.utils.GraalOCLBackendConnector;
-import uk.ac.ed.replacements.ocl.OCLHotSpotReplacementsImpl;
-import uk.ac.ed.replacements.ocl.OCLMathSubstitutions;
-
 import com.oracle.graal.compiler.target.Backend;
 import com.oracle.graal.graph.Node;
 import com.oracle.graal.hotspot.meta.HotSpotProviders;
+import com.oracle.graal.loop.DefaultLoopPolicies;
+import com.oracle.graal.loop.phases.LoopFullUnrollPhase;
 import com.oracle.graal.nodes.InvokeNode;
 import com.oracle.graal.nodes.StructuredGraph;
 import com.oracle.graal.phases.OptimisticOptimizations;
+import com.oracle.graal.phases.Phase;
 import com.oracle.graal.phases.PhaseSuite;
 import com.oracle.graal.phases.common.CanonicalizerPhase;
 import com.oracle.graal.phases.common.ConditionalEliminationPhase;
@@ -39,14 +36,33 @@ import com.oracle.graal.phases.common.inlining.InliningPhase;
 import com.oracle.graal.phases.tiers.HighTierContext;
 import com.oracle.graal.phases.util.Providers;
 
+import jdk.vm.ci.meta.MetaAccessProvider;
+import uk.ac.ed.accelerator.math.ocl.OCLMath;
+import uk.ac.ed.compiler.utils.GraalOCLBackendConnector;
+import uk.ac.ed.replacements.ocl.OCLHotSpotReplacementsImpl;
+import uk.ac.ed.replacements.ocl.OCLMathSubstitutions;
+
 public class MarawaccHighTier {
 
-    public static void applyHighTierForGPUs(StructuredGraph graph, HighTierContext context) {
-        new CanonicalizerPhase().apply(graph, context);
-        new InliningPhase(new CanonicalizerPhase()).apply(graph, context);
-        new CanonicalizerPhase().apply(graph, context);
-        new DeadCodeEliminationPhase().apply(graph);
-        new ConditionalEliminationPhase().apply(graph);
+    public static class MarawaccGPUCompilerPhase extends Phase {
+
+        private HighTierContext context;
+
+        public MarawaccGPUCompilerPhase(HighTierContext context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void run(StructuredGraph graph) {
+            new CanonicalizerPhase().apply(graph, context);
+            new InliningPhase(new CanonicalizerPhase()).apply(graph, context);
+            new CanonicalizerPhase().apply(graph, context);
+            new DeadCodeEliminationPhase().apply(graph);
+            new ConditionalEliminationPhase().apply(graph);
+            new LoopFullUnrollPhase(new CanonicalizerPhase(), new DefaultLoopPolicies()).apply(graph, context);
+            // new PartialEscapePhase(true, new CanonicalizerPhase()).apply(graph, context);
+        }
+
     }
 
     public static Backend getBackend() {

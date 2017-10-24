@@ -24,18 +24,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import jdk.vm.ci.hotspot.HotSpotMetaAccessProvider;
-import jdk.vm.ci.meta.MetaAccessProvider;
-import jdk.vm.ci.meta.ResolvedJavaMethod;
-import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
-import uk.ac.ed.accelerator.common.ParallelSkeleton;
-import uk.ac.ed.accelerator.ocl.GraalOpenCLRuntime;
-import uk.ac.ed.accelerator.ocl.ParallelOptions;
-import uk.ac.ed.accelerator.ocl.tier.MarawaccHighTier;
-import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata;
-import uk.ac.ed.compiler.utils.GraalOCLBackendConnector;
-import uk.ac.ed.replacements.ocl.OCLMathIntrinsicNode;
-
 import com.oracle.graal.compiler.target.Backend;
 import com.oracle.graal.debug.internal.DebugScope;
 import com.oracle.graal.graph.Node;
@@ -52,6 +40,19 @@ import com.oracle.graal.phases.PhaseSuite;
 import com.oracle.graal.phases.tiers.HighTierContext;
 import com.oracle.graal.phases.util.Providers;
 import com.oracle.graal.printer.GraphPrinterDumpHandler;
+
+import jdk.vm.ci.hotspot.HotSpotMetaAccessProvider;
+import jdk.vm.ci.meta.MetaAccessProvider;
+import jdk.vm.ci.meta.ResolvedJavaMethod;
+import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
+import uk.ac.ed.accelerator.common.ParallelSkeleton;
+import uk.ac.ed.accelerator.ocl.GraalOpenCLRuntime;
+import uk.ac.ed.accelerator.ocl.ParallelOptions;
+import uk.ac.ed.accelerator.ocl.tier.MarawaccHighTier;
+import uk.ac.ed.accelerator.ocl.tier.MarawaccHighTier.MarawaccGPUCompilerPhase;
+import uk.ac.ed.accelerator.wocl.LambdaFunctionMetadata;
+import uk.ac.ed.compiler.utils.GraalOCLBackendConnector;
+import uk.ac.ed.replacements.ocl.OCLMathIntrinsicNode;
 
 public class GraalIRConversion implements GraalIRUtilities {
 
@@ -76,7 +77,8 @@ public class GraalIRConversion implements GraalIRUtilities {
 
     public static StructuredGraph optimisticOptimisationsLambda(StructuredGraph graph, boolean mathReplacements) {
         HighTierContext context = MarawaccHighTier.applyMathReplacements(mathReplacements, graph);
-        MarawaccHighTier.applyHighTierForGPUs(graph, context);
+        new MarawaccGPUCompilerPhase(context).apply(graph);
+        // MarawaccHighTier.applyHighTierForGPUs(graph, context);
         return graph;
     }
 
