@@ -83,7 +83,12 @@ public final class OpenCLDevices {
         if (multiDeviceList == null) {
             multiDeviceList = new ArrayList<>();
         }
-        ArrayList<GraalAcceleratorDevice> gpuGraalDevices = new ArrayList<>();
+        ArrayList<GraalAcceleratorDevice> gpuGraalDevices;
+        if (!multiDeviceList.isEmpty()) {
+            gpuGraalDevices = multiDeviceList.get(0);
+        } else {
+            gpuGraalDevices = new ArrayList<>();
+        }
         System.out.println("Setting multidevice: " + numGPUDevices);
         for (int i = 0; i < numGPUDevices; i++) {
             long type = getLong(devices[i], CL.CL_DEVICE_TYPE);
