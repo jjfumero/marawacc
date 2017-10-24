@@ -212,22 +212,37 @@ public final class OpenCLDevices {
         initCPUOnly(platform);
         // Add inspected GPU
 
-        ArrayList<GraalAcceleratorDevice> arrayList = multiDeviceList.get(0);
+        ArrayList<GraalAcceleratorDevice> gpuList = multiDeviceList.get(0);
 
-        for (int j = 0; j < arrayList.size(); j++) {
+        for (int logicGPUIndex = 0; logicGPUIndex < gpuList.size(); logicGPUIndex++) {
 
-            ArrayList<GraalAcceleratorDevice> deviceList = null;
+            GraalAcceleratorDevice graalAcceleratorDevice = gpuList.get(logicGPUIndex);
 
-            GraalAcceleratorDevice graalAcceleratorDevice = arrayList.get(j);
-
-            if (this.graalOCLDev.containsKey(graalAcceleratorDevice.getType())) {
-                deviceList = this.graalOCLDev.get(graalAcceleratorDevice.getType());
+            ArrayList<GraalAcceleratorDevice> deviceTypeList = null;
+            if (graalOCLDev.containsKey(graalAcceleratorDevice.getType())) {
+                deviceTypeList = graalOCLDev.get(graalAcceleratorDevice.getType());
             } else {
-                deviceList = new ArrayList<>();
+                deviceTypeList = new ArrayList<>();
             }
-            deviceList.add(graalAcceleratorDevice);
-            this.graalOCLDev.put(graalAcceleratorDevice.getType(), deviceList);
-            this.numDevices++;
+
+            // Since multiDeviceList can handle gpus from different platforms, we need to check for
+            // repetitions
+            boolean found = false;
+            if (!deviceTypeList.isEmpty()) {
+                for (GraalAcceleratorDevice dev : deviceTypeList) {
+                    if (dev.equals(graalAcceleratorDevice)) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found) {
+                // only add a new one if not found
+                deviceTypeList.add(graalAcceleratorDevice);
+                graalOCLDev.put(graalAcceleratorDevice.getType(), deviceTypeList);
+                numDevices++;
+            }
         }
     }
 
