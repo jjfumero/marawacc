@@ -95,7 +95,11 @@ public final class OpenCLDevices {
             OCLGraalAcceleratorDevice oclGraalAcceleratorDevice = new OCLGraalAcceleratorDevice(platform, devices[i], platformType, type, totalDeviceCounter++);
             gpuGraalDevices.add(oclGraalAcceleratorDevice);
         }
-        multiDeviceList.set(0, gpuGraalDevices);
+        if (!multiDeviceList.isEmpty()) {
+            multiDeviceList.set(0, gpuGraalDevices);
+        } else {
+            multiDeviceList.add(gpuGraalDevices);
+        }
     }
 
     private cl_platform_id[] getPlatforms() {
