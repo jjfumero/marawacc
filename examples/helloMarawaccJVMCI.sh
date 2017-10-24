@@ -13,7 +13,7 @@ mx $vm \
 	-jvmci \
 	-Dmarawacc.printOCLKernel=true \
 	-Dmarawacc.threadGraalCompilation=10 \
-	-Dmarawacc.dumpGraph=true \
+	-Dmarawacc.dumpGraph=false \
 	-Dmarawacc.multidevice=true \
 	-Dmarawacc.useVectorTypes=true \
 	-Dmarawacc.debugOCLKernel=false \
