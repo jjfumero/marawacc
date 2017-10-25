@@ -20,26 +20,64 @@
 
 package uk.ac.ed.jpai;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.function.Function;
 
+import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
 import uk.ac.ed.datastructures.common.PArray;
+import uk.ac.ed.jpai.annotations.Cached;
 
 public class MapAccelerator<inT, outT> extends MapJavaThreads<inT, outT> {
 
     protected ArrayFunction<inT, outT> decomposition;
 
     /**
+     * Map Parallel Skeleton to execute on an OpenCL device.
      *
      * @param function
      */
     public MapAccelerator(Function<inT, outT> function) {
         super(function);
 
+        boolean functionCaching = false;
+        if (GraalAcceleratorOptions.useFunctionCaching) {
+            functionCaching = processAnnotation(function);
+        }
+
         CopyToDevice<inT> copyToDevice = new CopyToDevice<>();
         OpenCLMap<inT, outT> openclMap = new OpenCLMap<>(function);
         CopyToHost<outT> copyToHost = new CopyToHost<>();
 
         decomposition = copyToDevice.andThen(openclMap).andThen(copyToHost);
+    }
+
+    // Experimental annotation for caching functions using the name
+    // Feature not fully completed yet.
+    public boolean processAnnotation(Function<inT, outT> function1) {
+        String canonicalName = function1.getClass().getCanonicalName();
+        String className = canonicalName.split("\\$")[0];
+        try {
+            Class<?> cls = Class.forName(className);
+            Field[] declaredFields = cls.getDeclaredFields();
+            for (Field f : declaredFields) {
+                Annotation[] annotations = f.getAnnotations();
+                for (Annotation a : annotations) {
+                    if (a instanceof Cached) {
+                        Cached myAnnotation = (Cached) a;
+                        String name = myAnnotation.name();
+                        String[] n = f.getName().split("\\.");
+                        String fieldName = n[n.length - 1];
+                        if (fieldName.equals(name)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override

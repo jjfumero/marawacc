@@ -161,6 +161,11 @@ public final class GraalAcceleratorOptions {
     public static int threadsGraalCompilationThreshold = getIntValue("marawacc.threadGraalCompilation", 10);
 
     /**
+     * Experimental option for function caching in JPAI (by name) to optimise kernel generation
+     */
+    public static boolean useFunctionCaching = getBoolean("marawacc.useFunctionCachiing", false);
+
+    /**
      * Platforms supported
      */
     public enum AcceleratorPlatformKind {

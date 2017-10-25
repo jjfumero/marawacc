@@ -19,6 +19,8 @@
  */
 package uk.ac.ed.jpai.cache;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -33,8 +35,8 @@ import java.util.function.Function;
 public final class UserFunctionCache {
 
     public static final UserFunctionCache INSTANCE = new UserFunctionCache();
-    private static HashMap<String, UUID> cache;
-    private static HashMap<BiFunction<?, ?, ?>, UUID> cachebi;
+    private HashMap<String, UUID> cache;
+    private HashMap<BiFunction<?, ?, ?>, UUID> cachebi;
 
     private static UUID lastUUID;
 
@@ -43,7 +45,6 @@ public final class UserFunctionCache {
         cachebi = new HashMap<>();
     }
 
-    @SuppressWarnings("static-method")
     public UUID insertFunction(Function<?, ?> function) {
         if (!cache.containsKey(function.getClass().getName())) {
             lastUUID = UUID.randomUUID();
@@ -53,7 +54,6 @@ public final class UserFunctionCache {
         return cache.get(function.getClass().getName());
     }
 
-    @SuppressWarnings("static-method")
     public <T, R> void insertFunction(BiFunction<R, R, R> f) {
         if (!cachebi.containsKey(f)) {
             lastUUID = UUID.randomUUID();
@@ -61,7 +61,6 @@ public final class UserFunctionCache {
         }
     }
 
-    @SuppressWarnings("static-method")
     public <T, R> void insertBiFunction(BiFunction<T, R, R> f) {
         if (!cachebi.containsKey(f)) {
             lastUUID = UUID.randomUUID();
@@ -69,22 +68,18 @@ public final class UserFunctionCache {
         }
     }
 
-    @SuppressWarnings("static-method")
     public <T, R> boolean isFunction(Function<T, R> function) {
         return cache.containsKey(function.getClass().getName());
     }
 
-    @SuppressWarnings("static-method")
     public <T, R> boolean isFunction(BiFunction<R, R, R> biFunction) {
         return cachebi.containsKey(biFunction.getClass().getName());
     }
 
-    @SuppressWarnings("static-method")
-    public UUID getLastUUID() {
+    public static UUID getLastUUID() {
         return lastUUID;
     }
 
-    @SuppressWarnings("static-method")
     public <T, R> UUID getUUID(Function<T, R> f) {
         String functionName = f.getClass().getName();
         if (cache.containsKey(functionName)) {

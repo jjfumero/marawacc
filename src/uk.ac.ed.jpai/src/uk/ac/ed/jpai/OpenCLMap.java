@@ -92,6 +92,11 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         uuidKernel = UserFunctionCache.INSTANCE.insertFunction(f);
     }
 
+    public OpenCLMap(Function<inT, outT> f, boolean functionCaching) {
+        super(f);
+        uuidKernel = UserFunctionCache.INSTANCE.insertFunction(f);
+    }
+
     private static void writeIntoBuffer(int deviceIndex, int writeIndex, cl_command_queue commandQueue, ArrayList<ScopeInfoProperties> scopeVarDeviceList, ArrayList<cl_mem> scopeBufferDeviceList) {
         int bufferIndex = 0;
         for (ScopeInfoProperties s : scopeVarDeviceList) {
@@ -227,6 +232,7 @@ public class OpenCLMap<inT, outT> extends MapJavaThreads<inT, outT> {
         // Generate the OpenCL C Kernel
         generateAndCompileOpenCLKernel(input);
 
+        // Scope variables (capture) and update the state
         createPinnedBuffersForScopedVariables(input);
 
         long end = System.nanoTime();
