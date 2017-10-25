@@ -971,6 +971,7 @@ public class JPAIBenchmarksTestSuite extends MarawaccOpenCLTestBase {
     }
 
     @Test
+    @Ignore
     public void dft() {
 
         final int size = 100;

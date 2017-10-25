@@ -37,6 +37,7 @@ import com.oracle.graal.phases.tiers.HighTierContext;
 import com.oracle.graal.phases.util.Providers;
 
 import jdk.vm.ci.meta.MetaAccessProvider;
+import uk.ac.ed.accelerator.common.GraalAcceleratorOptions;
 import uk.ac.ed.accelerator.math.ocl.OCLMath;
 import uk.ac.ed.compiler.utils.GraalOCLBackendConnector;
 import uk.ac.ed.replacements.ocl.OCLHotSpotReplacementsImpl;
@@ -59,7 +60,11 @@ public class MarawaccHighTier {
             new CanonicalizerPhase().apply(graph, context);
             new DeadCodeEliminationPhase().apply(graph);
             new ConditionalEliminationPhase().apply(graph);
-            new LoopFullUnrollPhase(new CanonicalizerPhase(), new DefaultLoopPolicies()).apply(graph, context);
+
+            // Disable loop unrolling in this stage for Truffle-Lang
+            if (!GraalAcceleratorOptions.isTruffleLang) {
+                new LoopFullUnrollPhase(new CanonicalizerPhase(), new DefaultLoopPolicies()).apply(graph, context);
+            }
             // new PartialEscapePhase(true, new CanonicalizerPhase()).apply(graph, context);
         }
 

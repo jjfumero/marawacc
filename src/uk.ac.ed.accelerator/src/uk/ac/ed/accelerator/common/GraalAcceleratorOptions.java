@@ -165,6 +165,9 @@ public final class GraalAcceleratorOptions {
      */
     public static boolean useFunctionCaching = getBoolean("marawacc.useFunctionCachiing", false);
 
+    /** Set to true if it is Truffle-Lang */
+    public static boolean isTruffleLang = false;
+
     /**
      * Platforms supported
      */
