@@ -169,6 +169,11 @@ public final class GraalAcceleratorOptions {
     public static boolean isTruffleLang = false;
 
     /**
+     * Experimental option to disable a specific platform from an OpenCL Vendor.
+     */
+    public static String ignoreOpenCLVendor = getStringValue("marawacc.ignoreOpenCLVendor", "");
+
+    /**
      * Platforms supported
      */
     public enum AcceleratorPlatformKind {
@@ -214,6 +219,15 @@ public final class GraalAcceleratorOptions {
             return defaultValue;
         } else {
             int value = Integer.parseInt(System.getProperty(property).toLowerCase());
+            return value;
+        }
+    }
+
+    private static String getStringValue(String property, String defaultValue) {
+        if (System.getProperty(property) == null) {
+            return defaultValue;
+        } else {
+            String value = System.getProperty(property).toLowerCase();
             return value;
         }
     }

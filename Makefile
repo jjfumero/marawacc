@@ -16,6 +16,9 @@ sample:
 	# Execution with JVMCI
 	bash examples/helloMarawaccJVMCI.sh
 
+sample-optirun:
+	bash examples/helloMarawaccJVMCIWithOptirun.sh
+
 esample:
 	# server mode
 	bash examples/helloMarawaccServer.sh

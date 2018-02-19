@@ -68,8 +68,8 @@ public final class OpenCLDevices {
     }
 
     /**
-     * Note: Option for multiple-device in OpenCL. The cheapest option is to have a common context
-     * (it assumes all the devices are under the same platform). To do so, we need to following:
+     * Note: Option for multiple-device in OpenCL. The cheapest option is to have a common context (it
+     * assumes all the devices are under the same platform). To do so, we need to following:
      *
      * <code>
      * 1. One context per device
@@ -145,6 +145,7 @@ public final class OpenCLDevices {
 
     }
 
+    // Initialise multiple GPU
     private void initializeMultidevice() {
 
         cl_platform_id[] platforms = getPlatforms();
@@ -163,7 +164,7 @@ public final class OpenCLDevices {
             try {
                 CL.clGetDeviceIDs(platform, CL.CL_DEVICE_TYPE_GPU, 0, null, numberOfDevices);
             } catch (CLException e) {
-                System.out.println("NO GPU Platform ");
+                System.err.println("Platform: " + i + " is NOT A GPU Platform ");
                 continue;
             }
             int numGPUDevices = numberOfDevices[0];
@@ -268,6 +269,12 @@ public final class OpenCLDevices {
 
         for (cl_platform_id platform : platforms) {
             OCLVendor platformType = getPlatformVendor(platform);
+
+            if (GraalAcceleratorOptions.ignoreOpenCLVendor.equals(platformType.toString().toLowerCase())) {
+                System.out.println("Ignoring PLATFORM: " + platformType);
+                continue;
+            }
+
             if (multiDeviceList != null && !multiDeviceList.isEmpty()) {
                 combineCPUAndMultiDeviceLists(platform);
             } else {
@@ -311,8 +318,8 @@ public final class OpenCLDevices {
     }
 
     /**
-     * Get the list of devices on the first platform. It returns at least two devices, otherwise,
-     * this list will be empty.
+     * Get the list of devices on the first platform. It returns at least two devices, otherwise, this
+     * list will be empty.
      */
     public ArrayList<GraalAcceleratorDevice> getFirstDevicesForMultiGPU() {
         return multiDeviceList.get(0);

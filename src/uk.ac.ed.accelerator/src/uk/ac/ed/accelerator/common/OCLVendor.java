@@ -19,11 +19,17 @@
  */
 package uk.ac.ed.accelerator.common;
 
+/**
+ * List of OpenCL Vendors.
+ *
+ */
 public enum OCLVendor {
 
     NVIDIA("NVIDIA"),
     AMD("AMD"),
-    INTEL("INTEL");
+    INTEL("INTEL"),
+    NALLATECH("NALLATECH"),
+    ALTERA("INTEL ALTERA");
     private String name;
 
     OCLVendor(String name) {
