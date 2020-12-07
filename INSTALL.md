@@ -3,24 +3,29 @@
 OpenCL backend for Graal. It also provides an API for directly compiling and running a Java application in map/reduce style to OpenCL via Graal.
 
 
-## Prerequisites ##
+## Prerequisites 
 * Oracle/OpenJDK jdk8_91 or jdk8_92 [1,2]
 * MX Tool [3]
 * OpenCL Driver >= 1.2 [4]
-* GCC <= 5.3.1 (GCC 6.X does not compile with Hotspot)
+* GCC <= 5.3.1 (GCC 6.X does not compile with this version of HotSpot)
+* Git >= 2.0
 
 ## Current implementation tools and compilers
 
-The current Java compiler is JDK8 1.8_91.
-The current mx is the one provide in bitbucket repository.
+The current Java compiler is `JDK8 1.8_91`.
 
-## Marawacc configuration ##
+The current mx is the one provide in the Github repository.
 
-1. Oracle mx tool
+## Marawacc configuration 
+
+1. Graal mx Tool
 
 ```bash
 $ cd ~/bin/
-$ hg clone https://bitbucket.org/allr/mx
+$ git clone https://github.com/graalvm/mx
+$ cd mx 
+$ git checkout 900cc06  
+$ cd -- 
 ```
 
 Update the PATH to MX
@@ -29,7 +34,7 @@ Update the PATH to MX
 $ export PATH=$HOME/bin/mx/:$PATH
 ```
 
-Export JAVA_HOME and set DEFAULT VM to "server" or "jvmci" 
+Export `JAVA_HOME` and set `DEFAULT_VM` to `server` or `jvmci`
 
 NOTE: Use JVMCI to use Graal with bootstrap 
 
@@ -41,15 +46,18 @@ $ export DEFAULT_VM="jvmci"
 Then: 
 
 ```bash
-$ mkdir graal-ocl
-$ cd graal-ocl
+$ mkdir marawacc
+$ cd marawacc
 ```
 
-MX is a tool to manage repositories.  It manages the repository and all the dependencies automatically.
+```bash
+$ git clone git@github.com:jjfumero/jvmci-marawacc.git jvmci     ## Download JVMCI dependency
+$ git clone git@github.com:jjfumero/truffle-marawacc.git truffle ## Download Truffle dependency
+$ git clone https://github.com/jjfumero/graal-marawacc graal     ## Download Graal dependency
+```
 
 ```bash
-$ mx sclone ssh://hg@bitbucket.org/juanfumero/marawacc marawacc
-$ cd marawacc
+$ git clone git@github.com:jjfumero/marawacc.git marawacc
 $ make 
 ```
 
@@ -60,7 +68,7 @@ $ make sample  		# graal-jvmci compiler (recommended for Java apps)
 $ make esample 		# with server compiler (for Truffle apps) 
 ```
 
-## Import to Eclipse ##
+## Import to Eclipse 
 
 Generate eclipse files: 
 
@@ -88,10 +96,10 @@ File > Import > Existing Projects into Workspace
 
 Select the marawacc directory. It will also import all the dependencies (Graal, Truffle and JVMCI).
 
-# Links
+### Links
 
 1. http://www.oracle.com/technetwork/java/javase/downloads/index.html 
 2. https://jdk8.java.net/download.html 
-3. https://bitbucket.org/allr/mx
+3. https://github.com/graalvm/mx
 3. https://wiki.tiker.net/OpenCLHowTo
 

@@ -1,18 +1,17 @@
 # README #
 
-Marawacc is a compiler framework for OpenCL Just-In-Time (JIT) that automatically compiles a subset of the Java bytecode into OpenCL, and a
-runtime system that orchestrates the execution of the GPU program within Java. Marawacc is a research prototype.
+Marawacc is a compiler framework for OpenCL Just-In-Time (JIT) that automatically compiles a subset of the Java bytecode into OpenCL, and a runtime system that orchestrates the execution of the GPU program within Java. Marawacc is a research prototype. 
 
 Marawacc makes use of the Graal compiler and Truffle DSL ([https://github.com/graalvm/graal](https://github.com/graalvm/graal)) to optimise Java and R programs on top of the JVM. 
 
 Marawacc integrates an API, called **JPAI** (Java Parallel Array Interface) [2] to develop GPU and multi-core Java applications using the Function interface in Java 8.
-JPAI is a new Java API based on Java 8 Stream for parallel and heterogeneous programming. JPAI uses algorithmic skeletons and the new feature of Java lambda expressions to facilitate the programmability and readability. 
-Parallel operations using map/reduce in JPAI can be composed and reused. 
+
+JPAI is a new Java API based on Java 8 Stream for parallel and heterogeneous programming. JPAI uses algorithmic skeletons and the new feature of Java lambda expressions to facilitate the programmability and readability.  Parallel operations using map/reduce in JPAI can be composed and reused. 
 
 
 ### Install Marawacc ###
 
-See the INSTALL.md in this repository. 
+See the [INSTALL.md](INSTALL.md) in this repository. 
 
 
 ### Run Marawacc ###
@@ -20,11 +19,8 @@ See the INSTALL.md in this repository.
 Once Marawacc is compiled, it runs within the Graal VM. To enable OpenCL JIT compilation you need the following flags:
 
 
-```
-#!bash
-
+```bash
 -jvmci -XX:-BootstrapJVMCI -XX:-UseJVMCIClassLoader -Dmarawacc.printOCLKernel=true 
-
 ```
 
 ### Marawacc Options ###
@@ -38,8 +34,7 @@ Marawacc is the backend that generates OpenCL code at runtime from the Graal IR 
 JPAI is the interface to program GPUs and multi-core CPUs. For GPU execution, JPAI invokes Marawacc. This section shows a full example in JPAI.
 
 
-```
-#!java
+```java
 
 public class Hello {
 
@@ -69,9 +64,9 @@ public class Hello {
 
 # Publications 
 
-  [1] Juan José Fumero, Toomas Remmelg, Michel Steuwer, and Christophe Dubach. 2015. **Runtime Code Generation and Data Management for Heterogeneous Computing in Java.** In Proceedings of the Principles and Practices of Programming on The Java Platform (PPPJ '15). ACM, New York, NY, USA, 16-26. DOI: http://dx.doi.org/10.1145/2807426.2807428 
+  [1] Juan Josï¿½ Fumero, Toomas Remmelg, Michel Steuwer, and Christophe Dubach. 2015. **Runtime Code Generation and Data Management for Heterogeneous Computing in Java.** In Proceedings of the Principles and Practices of Programming on The Java Platform (PPPJ '15). ACM, New York, NY, USA, 16-26. DOI: http://dx.doi.org/10.1145/2807426.2807428 
 
-  [2] Juan José Fumero, Michel Steuwer, and Christophe Dubach. 2014. **A Composable Array Function Interface for Heterogeneous Computing in Java.** In Proceedings of ACM SIGPLAN International Workshop on Libraries, Languages, and Compilers for Array Programming (ARRAY'14). ACM, New York, NY, USA, Pages 44, 6 pages. DOI=http://dx.doi.org/10.1145/2627373.2627381
+  [2] Juan Josï¿½ Fumero, Michel Steuwer, and Christophe Dubach. 2014. **A Composable Array Function Interface for Heterogeneous Computing in Java.** In Proceedings of ACM SIGPLAN International Workshop on Libraries, Languages, and Compilers for Array Programming (ARRAY'14). ACM, New York, NY, USA, Pages 44, 6 pages. DOI=http://dx.doi.org/10.1145/2627373.2627381
 
 *Marawacc is used as a backend for FastR+GPU project (OpenCL JIT compilation for the R programs using Partial Evaluation in Graal)*
 
