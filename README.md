@@ -74,6 +74,7 @@ public class Hello {
  
   [4] Juan Fumero, Michel Steuwer, Lukas Stadler, Christophe Dubach. **OpenCL JIT Compilation for Dynamic Programming Language.** MoreVMs 2017. [http://conf.researchr.org/event/MoreVMs-2017/morevms-2017-papers-opencl-jit-compilation-for-dynamic-programming-languages](http://conf.researchr.org/event/MoreVMs-2017/morevms-2017-papers-opencl-jit-compilation-for-dynamic-programming-languages)
 
+  [5] Juan Fumero. **Accelerating interpreted programming languages on GPUs with just-in-time compilation and runtime optimisations**. PhD Dissertation, 30/11/2017 - [Link](https://era.ed.ac.uk/handle/1842/28718)
 
 ### License ###
 
