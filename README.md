@@ -66,7 +66,7 @@ public class Hello {
 
   [1] Juan Jos� Fumero, Toomas Remmelg, Michel Steuwer, and Christophe Dubach. 2015. **Runtime Code Generation and Data Management for Heterogeneous Computing in Java.** In Proceedings of the Principles and Practices of Programming on The Java Platform (PPPJ '15). ACM, New York, NY, USA, 16-26. DOI: http://dx.doi.org/10.1145/2807426.2807428 
 
-  [2] Juan Jos� Fumero, Michel Steuwer, and Christophe Dubach. 2014. **A Composable Array Function Interface for Heterogeneous Computing in Java.** In Proceedings of ACM SIGPLAN International Workshop on Libraries, Languages, and Compilers for Array Programming (ARRAY'14). ACM, New York, NY, USA, Pages 44, 6 pages. DOI=http://dx.doi.org/10.1145/2627373.2627381
+  [2] Juan José Fumero, Michel Steuwer, and Christophe Dubach. 2014. **A Composable Array Function Interface for Heterogeneous Computing in Java.** In Proceedings of ACM SIGPLAN International Workshop on Libraries, Languages, and Compilers for Array Programming (ARRAY'14). ACM, New York, NY, USA, Pages 44, 6 pages. DOI=http://dx.doi.org/10.1145/2627373.2627381
 
 *Marawacc is used as a backend for FastR+GPU project (OpenCL JIT compilation for the R programs using Partial Evaluation in Graal)*
 
